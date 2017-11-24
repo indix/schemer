@@ -30,6 +30,23 @@ class CSVSchemaSpec extends FlatSpec with Matchers {
     fields(2).`type` should be ("int")
   }
 
+  it should "infer schema without header from file" in {
+    val path = getClass.getClassLoader.getResource("test.csv").getPath
+
+    val inferredSchema = CSVSchema(CSVOptions(false)).infer(path)
+    val fields = inferredSchema.fields
+
+    fields.length should be (3)
+    fields(0).name should be ("_c0")
+    fields(0).`type` should be ("string")
+
+    fields(1).name should be ("_c1")
+    fields(1).`type` should be ("string")
+
+    fields(2).name should be ("_c2")
+    fields(2).`type` should be ("string")
+  }
+
   it should "infer schema and read" in {
     val path = getClass.getClassLoader.getResource("test.csv").getPath
 
