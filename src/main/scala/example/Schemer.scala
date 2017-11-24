@@ -1,5 +1,3 @@
 package example
 
-class Schemer {
-
-}
+class Schemer {}
