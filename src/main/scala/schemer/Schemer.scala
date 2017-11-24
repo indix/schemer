@@ -1,0 +1,6 @@
+package schemer
+
+object Schemer {
+
+}
+
