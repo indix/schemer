@@ -13,5 +13,5 @@ lazy val schemer = (project in file(".")).settings(
     )
   ),
   name := "schemer",
-  libraryDependencies ++= Seq(sparkCore, sparkSql, sparkHive, scalaTest)
+  libraryDependencies ++= Seq(sparkCore, sparkSql, sparkAvro, scalaTest)
 )

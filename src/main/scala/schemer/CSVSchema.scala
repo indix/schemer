@@ -4,7 +4,13 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import schemer.utils.JSONUtil
 
-case class CSVOptions(header: Boolean = true, headerBasedParser: Boolean = false, separator: String = ",", quoteChar: String = "\"", escapeChar: String = "\\")
+case class CSVOptions(
+    header: Boolean = true,
+    headerBasedParser: Boolean = false,
+    separator: String = ",",
+    quoteChar: String = "\"",
+    escapeChar: String = "\\"
+)
 
 case class CSVSchemaBase(options: CSVOptions) extends SchemaLikeBase {
   override def infer(paths: String*)(implicit spark: SparkSession) = {
@@ -86,22 +92,19 @@ case class CSVSchema(
       List.empty
     }
 
-  override def schema() = {
+  override def schema() =
     JSONUtil.toJson(this)
-  }
 }
 
 object CSVSchema {
   def apply(schema: String): CSVSchema =
     JSONUtil.fromJson[CSVSchema](schema)
 
-  def apply(options: CSVOptions): CSVSchemaBase = {
+  def apply(options: CSVOptions): CSVSchemaBase =
     CSVSchemaBase(options)
-  }
 
-  def apply(): CSVSchemaBase = {
+  def apply(): CSVSchemaBase =
     CSVSchemaBase(CSVOptions())
-  }
   def apply(
       schema: StructType,
       options: CSVOptions

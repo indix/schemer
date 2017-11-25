@@ -1,6 +1,3 @@
 package schemer
 
-object Schemer {
-
-}
-
+object Schemer {}
