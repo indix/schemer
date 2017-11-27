@@ -12,19 +12,19 @@ case class CSVOptions(
     escapeChar: String = "\\"
 )
 
-case class CSVSchemaBase(options: CSVOptions) extends SchemaLikeBase {
+case class CSVSchemaBase(csvOptions: CSVOptions) extends SchemaLikeBase[CSVSchema] {
   override def infer(paths: String*)(implicit spark: SparkSession) = {
     val schema = spark.read
-      .option("header", options.header.toString)
-      .option("delimiter", options.separator)
-      .option("quote", options.quoteChar)
-      .option("escape", options.escapeChar)
+      .option("header", csvOptions.header.toString)
+      .option("delimiter", csvOptions.separator)
+      .option("quote", csvOptions.quoteChar)
+      .option("escape", csvOptions.escapeChar)
       .option("nullValue", null)
       .option("inferSchema", "true")
       .csv(paths: _*)
       .schema
 
-    CSVSchema(schema, options)
+    CSVSchema(schema, csvOptions)
   }
 }
 
@@ -114,6 +114,25 @@ object CSVSchema {
     }.toList
 
     new CSVSchema(fields, options)
+  }
+
+  def apply(
+      schema: StructType,
+      options: Map[String, String]
+  ): CSVSchema = {
+    val fields = schema.fields.zipWithIndex.map {
+      case (f: StructField, i: Int) => CSVField(f.name, f.nullable, getCsvType(f.dataType), Some(i))
+    }.toList
+
+    val csvOptions = CSVOptions(
+      options.getOrElse("header", "true").toBoolean,
+      options.getOrElse("headerBasedParser", "true").toBoolean,
+      options.getOrElse("separator", ","),
+      options.getOrElse("quoteChar", "\""),
+      options.getOrElse("escapeChar", "\\")
+    )
+
+    new CSVSchema(fields, csvOptions)
   }
 
   private def getCsvType(sparkType: DataType) = sparkType match {

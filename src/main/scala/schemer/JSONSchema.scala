@@ -2,7 +2,6 @@ package schemer
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.fge.jackson.JsonLoader
-import com.github.fge.jsonschema.core.report.ProcessingReport
 import com.github.fge.jsonschema.main.JsonSchemaFactory
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
@@ -10,8 +9,6 @@ import schemer.utils.{JSONUtil, JsonSchemaValidationUtil}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-
-
 
 abstract trait JSONSchemaNode {
   def toJSON: String = JSONUtil.toJson(this)
@@ -42,7 +39,7 @@ case class BooleanSchema(`type`: String = "boolean") extends JSONSchemaNode
 
 case class ArraySchema(`type`: String = "array", items: JSONSchemaNode) extends JSONSchemaNode
 
-case class JSONSchemaBase() extends SchemaLikeBase {
+case class JSONSchemaBase() extends SchemaLikeBase[JSONSchema] {
 
   @tailrec
   private def processStructFields(
@@ -60,7 +57,7 @@ case class JSONSchemaBase() extends SchemaLikeBase {
 
   private def processDataType(dataType: DataType): JSONSchemaNode = dataType match {
     case StringType                      => StringSchema()
-    case LongType                        => IntegerSchema()
+    case LongType | IntegerType          => IntegerSchema()
     case DoubleType                      => NumberSchema()
     case BooleanType                     => BooleanSchema()
     case f if f.isInstanceOf[StructType] => convertSparkToJsonSchema(dataType.asInstanceOf[StructType])
@@ -162,5 +159,6 @@ case class JSONSchema(schema: String) extends SchemaLike {
 }
 
 object JSONSchema {
-  def apply(): JSONSchemaBase = JSONSchemaBase()
+  def apply(): JSONSchemaBase               = JSONSchemaBase()
+  def apply(schema: StructType): JSONSchema = JSONSchema(JSONSchemaBase().convertSparkToJsonSchema(schema).toJSON)
 }

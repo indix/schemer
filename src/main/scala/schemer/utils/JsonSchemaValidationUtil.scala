@@ -1,6 +1,7 @@
 package schemer.utils
 
 import com.github.fge.jsonschema.core.report.ProcessingReport
+import scala.collection.JavaConverters._
 
 object JsonSchemaValidationUtil {
   def process(report: ProcessingReport): List[String] =

@@ -19,7 +19,7 @@ class AvroSchemaSpec extends FlatSpec with Matchers {
     try {
       df.write.mode(SaveMode.Overwrite).avro("test")
       val schema = AvroSchema().infer("test")
-      schema.schemaJson.replaceAll("SchemerInferred_[^\"]+", "SchemerInferred") should be(
+      schema.schema.replaceAll("SchemerInferred_[^\"]+", "SchemerInferred") should be(
         "{\n  \"type\" : \"record\",\n  \"name\" : \"SchemerInferred\",\n  \"namespace\" : \"schemer\",\n  \"fields\" : [ {\n    \"name\" : \"title\",\n    \"type\" : [ \"string\", \"null\" ]\n  }, {\n    \"name\" : \"url\",\n    \"type\" : [ \"string\", \"null\" ]\n  }, {\n    \"name\" : \"storeId\",\n    \"type\" : [ \"int\", \"null\" ]\n  } ]\n}"
       )
     } finally {
