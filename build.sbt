@@ -2,7 +2,12 @@ import Dependencies._
 
 val libVersion = sys.env.get("TRAVIS_TAG") orElse sys.env.get("BUILD_LABEL") getOrElse s"1.0.0-${System.currentTimeMillis / 1000}-SNAPSHOT"
 
-lazy val schemer = (project in file(".")).settings(
+lazy val schemer = Project(
+  id = "schemer",
+  base = file(".")
+) aggregate core
+
+lazy val core = (project in file("schemer-core")).settings(
   inThisBuild(
     List(
       organization := "com.indix",
@@ -12,6 +17,6 @@ lazy val schemer = (project in file(".")).settings(
       scalafmtOnCompile := true
     )
   ),
-  name := "schemer",
+  name := "schemer-core",
   libraryDependencies ++= Seq(sparkCore, sparkSql, sparkAvro, jsonSchemaValidator, scalaTest)
 )
