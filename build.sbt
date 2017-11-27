@@ -5,7 +5,7 @@ val libVersion = sys.env.get("TRAVIS_TAG") orElse sys.env.get("BUILD_LABEL") get
 lazy val schemer = Project(
   id = "schemer",
   base = file(".")
-) aggregate core
+) aggregate (core, registry)
 
 lazy val core = (project in file("schemer-core")).settings(
   inThisBuild(
@@ -20,3 +20,16 @@ lazy val core = (project in file("schemer-core")).settings(
   name := "schemer-core",
   libraryDependencies ++= Seq(sparkCore, sparkSql, sparkAvro, jsonSchemaValidator, scalaTest)
 )
+
+lazy val registry = (project in file("schemer-registry")).settings(
+  inThisBuild(
+    List(
+      organization := "com.indix",
+      scalaVersion := "2.11.11",
+      version := libVersion,
+      scalafmtOnCompile := true
+    )
+  ),
+  name := "schemer-registry",
+  libraryDependencies ++= loggingStack ++ Seq(akkaHttp, scalaTest)
+) dependsOn core
