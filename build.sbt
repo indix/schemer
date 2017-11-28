@@ -31,5 +31,5 @@ lazy val registry = (project in file("schemer-registry")).settings(
     )
   ),
   name := "schemer-registry",
-  libraryDependencies ++= loggingStack ++ Seq(akkaHttp, scalaTest)
+  libraryDependencies ++= akkaStack ++ loggingStack ++ Seq(sangria, sangriaSpray, scalaTest)
 ) dependsOn core

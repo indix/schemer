@@ -9,7 +9,8 @@ import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import akka.stream.{ActorMaterializer, Materializer}
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import schemer.registry.routes.SwaggerRoutes
+import schemer.registry.graphql.GraphQLService
+import schemer.registry.routes.{GraphQLRoutes, SwaggerRoutes}
 import schemer.registry.utils.RealTimeClock
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,9 +38,11 @@ trait Modules extends StrictLogging {
   }
 
   implicit lazy val clock = RealTimeClock
+
+  lazy val graphQLService = new GraphQLService()
 }
 
-trait Routes extends SwaggerRoutes with StrictLogging {
+trait Routes extends GraphQLRoutes with StrictLogging {
   private val exceptionHandler = ExceptionHandler {
     case e: Exception =>
       logger.error(s"Exception during client request processing: ${e.getMessage}", e)
@@ -57,7 +60,7 @@ trait Routes extends SwaggerRoutes with StrictLogging {
   val routes = logDuration {
     handleExceptions(exceptionHandler) {
       encodeResponse {
-        swaggerRoutes
+        graphQLRoutes
       }
     }
   }
