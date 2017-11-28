@@ -1,7 +1,6 @@
-package schemer.registry
+package schemer.registry.graphql
 
 import sangria.execution.deferred.{Deferred, DeferredResolver}
-import schemer.registry.graphql.GraphQLService
 
 import scala.concurrent.{ExecutionContext, Future}
 
