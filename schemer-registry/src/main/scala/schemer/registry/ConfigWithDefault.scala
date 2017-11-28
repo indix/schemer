@@ -1,4 +1,4 @@
-package schemer.registry.utils
+package schemer.registry
 
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
