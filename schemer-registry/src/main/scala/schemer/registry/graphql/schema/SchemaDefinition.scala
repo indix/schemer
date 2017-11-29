@@ -13,6 +13,12 @@ object SchemaDefinition extends InferType with MetadataType with GraphQLCustomTy
     "Root",
     fields[GraphQLService, Unit](
       Field(
+        "infer",
+        InferType,
+        description = Some("Schema Inference"),
+        resolve = _ => ()
+      ),
+      Field(
         "metadata",
         MetadataType,
         description = Some("Metadata"),
@@ -21,5 +27,5 @@ object SchemaDefinition extends InferType with MetadataType with GraphQLCustomTy
       )
     )
   )
-  val schema = Schema(QueryType, Some(InferType))
+  val schema = Schema(QueryType)
 }

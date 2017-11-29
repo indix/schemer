@@ -4,7 +4,7 @@ import sangria.execution.deferred.{Deferred, DeferredResolver}
 import schemer.CSVOptions
 import schemer.registry.graphql.schema.GCSVSchema
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 case class InferCSVSchemaDeferred(options: CSVOptions, paths: Seq[String]) extends Deferred[GCSVSchema]
 
