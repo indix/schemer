@@ -36,4 +36,9 @@ case class ParquetSchema(schema: String, `type`: String) extends SchemaLike {
 
 object ParquetSchema {
   def apply[T <: SchemaLike: TypeTag]() = ParquetSchemaBase[T]()
+  def apply(`type`: String) = `type` match {
+    case "avro" => apply[AvroSchema]()
+    case "csv" => apply[CSVSchema]()
+    case "json" => apply[JSONSchema]()
+  }
 }
