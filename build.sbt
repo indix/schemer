@@ -21,15 +21,17 @@ lazy val core = (project in file("schemer-core")).settings(
   libraryDependencies ++= Seq(sparkCore, sparkSql, sparkAvro, jsonSchemaValidator, scalaTest)
 )
 
-lazy val registry = (project in file("schemer-registry")).settings(
-  inThisBuild(
-    List(
-      organization := "com.indix",
-      scalaVersion := "2.11.11",
-      version := libVersion,
-      scalafmtOnCompile := true
-    )
-  ),
-  name := "schemer-registry",
-  libraryDependencies ++= akkaStack ++ loggingStack ++ Seq(sangria, sangriaSpray, scalaTest)
-) dependsOn core
+lazy val registry = (project in file("schemer-registry"))
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    inThisBuild(
+      List(
+        organization := "com.indix",
+        scalaVersion := "2.11.11",
+        version := libVersion,
+        scalafmtOnCompile := true
+      )
+    ),
+    name := "schemer-registry",
+    libraryDependencies ++= akkaStack ++ loggingStack ++ Seq(sangria, sangriaSpray, scalaTest)
+  ) dependsOn core

@@ -1,10 +1,11 @@
 package schemer.registry.graphql.schema
 
+import buildinfo.BuildInfo
 import sangria.macros.derive.deriveObjectType
 import sangria.schema.{fields, Args, Field, ObjectType, Schema}
 import schemer.registry.graphql.GraphQLService
 
-case class Metadata(version: String = "1.0.0")
+case class Metadata(version: String = BuildInfo.version)
 
 trait MetadataType {
   lazy val MetadataType: ObjectType[Unit, Metadata] = deriveObjectType()
