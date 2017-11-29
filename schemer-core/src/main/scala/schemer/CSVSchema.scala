@@ -13,7 +13,7 @@ case class CSVOptions(
 )
 
 case class CSVSchemaBase(csvOptions: CSVOptions) extends SchemaLikeBase[CSVSchema] {
-  override def infer(paths: String*)(implicit spark: SparkSession) = {
+  override def infer(paths: String*)(implicit @transient spark: SparkSession) = {
     val schema = spark.read
       .option("header", csvOptions.header.toString)
       .option("delimiter", csvOptions.separator)
@@ -41,7 +41,7 @@ case class CSVSchema(
     StructType(structFields)
   }
 
-  def toDf(paths: String*)(implicit spark: SparkSession) = {
+  def toDf(paths: String*)(implicit @transient spark: SparkSession) = {
     val csvDF         = spark.read.csv(paths: _*)
     val orderedSchema = reconcileSchemaFieldOrder(sparkSchema(), csvDF)
 

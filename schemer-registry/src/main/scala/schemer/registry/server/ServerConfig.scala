@@ -1,5 +1,7 @@
 package schemer.registry.server
 
+import com.typesafe.config.Config
+
 trait ServerConfig extends ConfigWithDefault {
 
   def rootConfig: Config

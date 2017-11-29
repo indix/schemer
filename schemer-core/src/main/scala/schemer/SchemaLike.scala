@@ -5,7 +5,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 private[schemer] trait SchemaLikeBase[T <: SchemaLike] {
   val options: Map[String, String] = Map()
-  def infer(paths: String*)(implicit spark: SparkSession): T
+  def infer(paths: String*)(implicit @transient spark: SparkSession): T
 }
 
 private[schemer] trait SchemaLike {
@@ -15,5 +15,5 @@ private[schemer] trait SchemaLike {
 
   def schema(): String
 
-  def toDf(paths: String*)(implicit spark: SparkSession): DataFrame
+  def toDf(paths: String*)(implicit @transient spark: SparkSession): DataFrame
 }
