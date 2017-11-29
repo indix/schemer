@@ -1,10 +1,10 @@
 package schemer.registry.graphql.schema
 
 import sangria.schema._
-import schemer.{CSVField, CSVOptions, CSVSchema}
+import schemer.{CSVField, CSVOptions, CSVSchema, JSONSchema}
 import schemer.registry.graphql.schema.SchemaDefinition.constantComplexity
 import sangria.macros.derive.{deriveInputObjectType, deriveObjectType, InputObjectTypeName}
-import schemer.registry.graphql.{GraphQLService, InferCSVSchemaDeferred}
+import schemer.registry.graphql.{GraphQLService, InferCSVSchemaDeferred, InferJSONSchemaDeferred}
 import spray.json.DefaultJsonProtocol
 import sangria.marshalling.sprayJson._
 
@@ -51,6 +51,27 @@ trait InferType extends DefaultJsonProtocol {
     )
   )
 
+  lazy val JSONSchemaType = ObjectType(
+    "JSONSchema",
+    "JSON Schema",
+    fields[Unit, JSONSchema](
+      Field(
+        "schema",
+        StringType,
+        description = Some("CSV Schema as JSON string"),
+        complexity = constantComplexity(10),
+        resolve = ctx => ctx.value.schema
+      ),
+      Field(
+        "sparkSchema",
+        StringType,
+        description = Some("Spark Schema as JSON string"),
+        complexity = constantComplexity(100),
+        resolve = ctx => ctx.value.sparkSchema().prettyJson
+      )
+    )
+  )
+
   lazy val InferType = ObjectType(
     "Inference",
     "Schema Inference",
@@ -58,10 +79,18 @@ trait InferType extends DefaultJsonProtocol {
       Field(
         "csv",
         CSVSchemaType,
-        description = Some("CSV Schema inference from options and paths"),
+        description = Some("CSV Schema inference"),
         complexity = constantComplexity(500),
         resolve = ctx => InferCSVSchemaDeferred(ctx arg CSVOptionsArg, ctx arg PathsArg),
         arguments = List(CSVOptionsArg, PathsArg)
+      ),
+      Field(
+        "json",
+        JSONSchemaType,
+        description = Some("JSON Schema inference"),
+        complexity = constantComplexity(500),
+        resolve = ctx => InferJSONSchemaDeferred(ctx arg PathsArg),
+        arguments = List(PathsArg)
       )
     )
   )

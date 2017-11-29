@@ -1,14 +1,17 @@
 package schemer.registry.graphql
 
 import org.apache.spark.sql.SparkSession
-import schemer.{CSVOptions, CSVSchema}
+import schemer.{CSVOptions, CSVSchema, JSONSchema}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class GraphQLService(implicit val spark: SparkSession) {
   def inferCSVSchema(options: CSVOptions, paths: Seq[String]) = Future {
-    val schema = CSVSchema(options).infer(paths: _*)
-    schema
+    CSVSchema(options).infer(paths: _*)
+  }
+
+  def inferJSONSchema(paths: Seq[String]) = Future {
+    JSONSchema().infer(paths: _*)
   }
 }
