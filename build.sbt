@@ -18,7 +18,7 @@ lazy val core = (project in file("schemer-core")).settings(
     )
   ),
   name := "schemer-core",
-  libraryDependencies ++= Seq(sparkCore, sparkSql, sparkAvro, jsonSchemaValidator, scalaTest)
+  libraryDependencies ++= sparkStackProvided ++ Seq(jsonSchemaValidator, scalaTest)
 )
 
 lazy val registry = (project in file("schemer-registry"))
@@ -33,5 +33,5 @@ lazy val registry = (project in file("schemer-registry"))
       )
     ),
     name := "schemer-registry",
-    libraryDependencies ++= akkaStack ++ loggingStack ++ Seq(sangria, sangriaSpray, scalaTest)
+    libraryDependencies ++= sparkStack ++ akkaStack ++ loggingStack ++ Seq(hadoopAws, sangria, sangriaSpray, scalaTest)
   ) dependsOn core

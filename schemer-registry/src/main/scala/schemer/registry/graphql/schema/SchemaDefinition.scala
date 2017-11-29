@@ -1,17 +1,9 @@
 package schemer.registry.graphql.schema
 
-import buildinfo.BuildInfo
-import sangria.macros.derive.deriveObjectType
 import sangria.schema.{fields, Args, Field, ObjectType, Schema}
 import schemer.registry.graphql.GraphQLService
 
-case class Metadata(version: String = BuildInfo.version)
-
-trait MetadataType {
-  lazy val MetadataType: ObjectType[Unit, Metadata] = deriveObjectType()
-}
-
-object SchemaDefinition extends MetadataType with GraphQLCustomTypes {
+object SchemaDefinition extends InferType with MetadataType with GraphQLCustomTypes {
 
   def constantComplexity[Ctx](complexity: Double) =
     Some((_: Ctx, _: Args, child: Double) => child + complexity)
@@ -29,5 +21,5 @@ object SchemaDefinition extends MetadataType with GraphQLCustomTypes {
       )
     )
   )
-  val schema = Schema(QueryType)
+  val schema = Schema(QueryType, Some(InferType))
 }

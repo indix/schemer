@@ -7,9 +7,14 @@ object Versions {
 
 object Dependencies {
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.3" % Test
-  lazy val sparkCore = "org.apache.spark" %% "spark-core" % Versions.sparkVersion % Provided
-  lazy val sparkSql = "org.apache.spark" %% "spark-sql" % Versions.sparkVersion % Provided
-  lazy val sparkAvro = "com.databricks" %% "spark-avro" % "4.0.0" % Provided
+  lazy val sparkCore = "org.apache.spark" %% "spark-core" % Versions.sparkVersion
+  lazy val sparkSql = "org.apache.spark" %% "spark-sql" % Versions.sparkVersion
+  lazy val sparkAvro = "com.databricks" %% "spark-avro" % "4.0.0"
+
+  lazy val sparkStack = Seq(sparkCore, sparkSql, sparkAvro)
+  lazy val sparkStackProvided = sparkStack.map(_ % Provided)
+
+  lazy val hadoopAws = "org.apache.hadoop" % "hadoop-aws" % "2.6.0"
 
   lazy val jsonSchemaValidator = "com.github.fge" % "json-schema-validator" % "2.2.6" excludeAll {
     ExclusionRule("javax.mail")
