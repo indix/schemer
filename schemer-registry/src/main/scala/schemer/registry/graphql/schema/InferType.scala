@@ -1,14 +1,20 @@
 package schemer.registry.graphql.schema
 
 import sangria.schema._
-import schemer.{CSVField, CSVOptions, CSVSchema, JSONSchema}
+import schemer._
 import schemer.registry.graphql.schema.SchemaDefinition.constantComplexity
 import sangria.macros.derive.{deriveInputObjectType, deriveObjectType, InputObjectTypeName}
-import schemer.registry.graphql.{GraphQLService, InferCSVSchemaDeferred, InferJSONSchemaDeferred}
+import schemer.registry.graphql.{
+  GraphQLService,
+  InferCSVSchemaDeferred,
+  InferJSONSchemaDeferred,
+  InferParquetSchemaDeferred
+}
 import spray.json.DefaultJsonProtocol
 import sangria.marshalling.sprayJson._
 
 trait InferType extends DefaultJsonProtocol {
+  lazy implicit val TypeArg             = Argument("type", StringType)
   lazy implicit val PathsArg            = Argument("paths", ListInputType(StringType))
   implicit val CSVOptionsFormat         = jsonFormat5(CSVOptions.apply)
   lazy implicit val CSVOptionsInputType = deriveInputObjectType[CSVOptions](InputObjectTypeName("CSVOptionsInput"))
@@ -72,6 +78,34 @@ trait InferType extends DefaultJsonProtocol {
     )
   )
 
+  lazy val ParquetSchemaType = ObjectType(
+    "ParquetSchema",
+    "Parquet Schema",
+    fields[Unit, ParquetSchema](
+      Field(
+        "type",
+        StringType,
+        description = Some("Parquet Schema type"),
+        complexity = constantComplexity(10),
+        resolve = ctx => ctx.value.`type`
+      ),
+      Field(
+        "schema",
+        StringType,
+        description = Some("Parquet Schema as JSON string"),
+        complexity = constantComplexity(10),
+        resolve = ctx => ctx.value.schema
+      ),
+      Field(
+        "sparkSchema",
+        StringType,
+        description = Some("Spark Schema as JSON string"),
+        complexity = constantComplexity(100),
+        resolve = ctx => ctx.value.sparkSchema().prettyJson
+      )
+    )
+  )
+
   lazy val InferType = ObjectType(
     "Inference",
     "Schema Inference",
@@ -91,6 +125,14 @@ trait InferType extends DefaultJsonProtocol {
         complexity = constantComplexity(500),
         resolve = ctx => InferJSONSchemaDeferred(ctx arg PathsArg),
         arguments = List(PathsArg)
+      ),
+      Field(
+        "parquet",
+        ParquetSchemaType,
+        description = Some("Parquet Schema inference"),
+        complexity = constantComplexity(500),
+        resolve = ctx => InferParquetSchemaDeferred(ctx arg TypeArg, ctx arg PathsArg),
+        arguments = List(TypeArg, PathsArg)
       )
     )
   )
