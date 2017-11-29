@@ -20,7 +20,7 @@ trait GraphQLRoutes {
 
   case object TooComplexQuery extends Exception
   val rejectComplexQueries = QueryReducer.rejectComplexQueries(
-    300,
+    1000,
     (_: Double, _: GraphQLService) => TooComplexQuery
   )
 

@@ -1,12 +1,11 @@
 package schemer.registry.graphql
 
 import sangria.execution.deferred.{Deferred, DeferredResolver}
-import schemer.CSVOptions
-import schemer.registry.graphql.schema.GCSVSchema
+import schemer.{CSVOptions, CSVSchema}
 
 import scala.concurrent.ExecutionContext
 
-case class InferCSVSchemaDeferred(options: CSVOptions, paths: Seq[String]) extends Deferred[GCSVSchema]
+case class InferCSVSchemaDeferred(options: CSVOptions, paths: Seq[String]) extends Deferred[CSVSchema]
 
 class CustomGraphQLResolver extends DeferredResolver[GraphQLService] {
   override def resolve(deferred: Vector[Deferred[Any]], ctx: GraphQLService, queryState: Any)(
