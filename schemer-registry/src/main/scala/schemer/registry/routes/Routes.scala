@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import akka.http.scaladsl.server.Directives._
 
-trait Routes extends GraphQLRoutes with StrictLogging {
+trait Routes extends GraphQLRoutes with HealthRoutes with StrictLogging {
   private val exceptionHandler = ExceptionHandler {
     case e: Exception =>
       logger.error(s"Exception during client request processing: ${e.getMessage}", e)
@@ -23,7 +23,7 @@ trait Routes extends GraphQLRoutes with StrictLogging {
   val routes = logDuration {
     handleExceptions(exceptionHandler) {
       encodeResponse {
-        graphQLRoutes
+        graphQLRoutes ~ healthRoutes
       }
     }
   }
