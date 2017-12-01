@@ -18,6 +18,7 @@ deploy:
 - provider: script
   script: "./publish.sh"
   skip_cleanup: true
+  sudo: required
   on:
     tags: true
     jdk: oraclejdk8
