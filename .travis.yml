@@ -3,7 +3,9 @@ scala:
 - 2.11.11
 jdk:
 - oraclejdk8
-sudo: false
+sudo: required
+services:
+- docker
 before_cache:
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
@@ -18,9 +20,6 @@ deploy:
 - provider: script
   script: "./publish.sh"
   skip_cleanup: true
-  sudo: required
-  services:
-    - docker
   on:
     tags: true
     jdk: oraclejdk8
