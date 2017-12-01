@@ -5,4 +5,6 @@ set -ex
 sbt "project core" +publishSigned
 sbt sonatypeReleaseAll
 
-echo "Released"
+docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+
+docker push "indix/schemer:${TRAVIS_TAG}"
