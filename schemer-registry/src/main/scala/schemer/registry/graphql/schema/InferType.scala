@@ -9,7 +9,7 @@ import sangria.marshalling.sprayJson._
 import schemer._
 
 trait InferType extends DefaultJsonProtocol {
-  lazy implicit val TypeArg             = Argument("type", StringType)
+  lazy implicit val TypeArg             = Argument("type", ParquetSchemaUnderlyingType)
   lazy implicit val PathsArg            = Argument("paths", ListInputType(StringType))
   implicit val CSVOptionsFormat         = jsonFormat5(CSVOptions.apply)
   lazy implicit val CSVOptionsInputType = deriveInputObjectType[CSVOptions](InputObjectTypeName("CSVOptionsInput"))
@@ -73,13 +73,23 @@ trait InferType extends DefaultJsonProtocol {
     )
   )
 
+  lazy val ParquetSchemaUnderlyingType = EnumType(
+    "ParquetSchemaType",
+    Some("Supported schema types for Parquet"),
+    List(
+      EnumValue("Avro", value = schemer.ParquetSchemaType.Avro.`type`),
+      EnumValue("Csv", value = schemer.ParquetSchemaType.Csv.`type`),
+      EnumValue("Json", value = schemer.ParquetSchemaType.Json.`type`)
+    )
+  )
+
   lazy val ParquetSchemaType = ObjectType(
     "ParquetSchema",
     "Parquet Schema",
     fields[Unit, ParquetSchema](
       Field(
         "type",
-        StringType,
+        ParquetSchemaUnderlyingType,
         description = Some("Parquet Schema type"),
         complexity = constantComplexity(10),
         resolve = ctx => ctx.value.`type`.`type`
