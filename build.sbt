@@ -64,7 +64,7 @@ lazy val core = (project in file("schemer-core")).settings(
   ),
   name := "schemer-core",
   libraryDependencies ++= sparkStackProvided ++ Seq(jsonSchemaValidator, scalaTest)
-)
+).settings(publishSettings: _*)
 
 lazy val registry = (project in file("schemer-registry"))
   .enablePlugins(BuildInfoPlugin)
@@ -79,7 +79,6 @@ lazy val registry = (project in file("schemer-registry"))
     daemonUser in Docker := "root",
     dockerRepository := Some("indix/schemer-registry")
   )
-  .settings(publishSettings: _*)
   .settings(
     inThisBuild(
       List(
