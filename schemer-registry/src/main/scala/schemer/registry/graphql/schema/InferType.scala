@@ -1,12 +1,12 @@
 package schemer.registry.graphql.schema
 
 import sangria.schema._
-import schemer._
 import schemer.registry.graphql.schema.SchemaDefinition.constantComplexity
 import sangria.macros.derive.{deriveInputObjectType, deriveObjectType, InputObjectTypeName}
 import schemer.registry.graphql._
 import spray.json.DefaultJsonProtocol
 import sangria.marshalling.sprayJson._
+import schemer._
 
 trait InferType extends DefaultJsonProtocol {
   lazy implicit val TypeArg             = Argument("type", StringType)
@@ -82,7 +82,7 @@ trait InferType extends DefaultJsonProtocol {
         StringType,
         description = Some("Parquet Schema type"),
         complexity = constantComplexity(10),
-        resolve = ctx => ctx.value.`type`
+        resolve = ctx => ctx.value.`type`.`type`
       ),
       Field(
         "schema",

@@ -52,19 +52,21 @@ lazy val schemer = Project(
   base = file(".")
 ) aggregate (core, registry)
 
-lazy val core = (project in file("schemer-core")).settings(
-  inThisBuild(
-    List(
-      organization := "com.indix",
-      scalaVersion := "2.11.11",
-      crossScalaVersions := Seq("2.11.11"),
-      version := libVersion,
-      scalafmtOnCompile := true
-    )
-  ),
-  name := "schemer-core",
-  libraryDependencies ++= sparkStackProvided ++ Seq(jsonSchemaValidator, scalaTest)
-).settings(publishSettings: _*)
+lazy val core = (project in file("schemer-core"))
+  .settings(
+    inThisBuild(
+      List(
+        organization := "com.indix",
+        scalaVersion := "2.11.11",
+        crossScalaVersions := Seq("2.11.11"),
+        version := libVersion,
+        scalafmtOnCompile := true
+      )
+    ),
+    name := "schemer-core",
+    libraryDependencies ++= sparkStackProvided ++ Seq(jsonSchemaValidator, scalaTest)
+  )
+  .settings(publishSettings: _*)
 
 lazy val registry = (project in file("schemer-registry"))
   .enablePlugins(BuildInfoPlugin)
@@ -85,7 +87,7 @@ lazy val registry = (project in file("schemer-registry"))
         organization := "com.indix",
         scalaVersion := "2.11.11",
         version := libVersion,
-        scalafmtOnCompile := true,
+        scalafmtOnCompile := true
       )
     ),
     name := "schemer-registry",
