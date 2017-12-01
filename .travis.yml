@@ -19,6 +19,8 @@ deploy:
   script: "./publish.sh"
   skip_cleanup: true
   sudo: required
+  services:
+    - docker
   on:
     tags: true
     jdk: oraclejdk8
