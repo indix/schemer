@@ -5,14 +5,16 @@ import org.apache.spark.sql.types.StructType
 import scala.reflect.runtime.universe._
 
 case class ParquetSchemaBase[T <: SchemaLike: TypeTag](override val options: Map[String, String] = Map())
-    extends SchemaLikeBase[T] {
+    extends SchemaLikeBase[ParquetSchema] {
   override def infer(paths: String*)(implicit spark: SparkSession) = {
     val schema = spark.read.parquet(paths: _*).schema
-    (typeOf[T] match {
-      case t if t =:= typeOf[AvroSchema] => AvroSchema(schema)
-      case t if t =:= typeOf[JSONSchema] => JSONSchema(schema)
-      case t if t =:= typeOf[CSVSchema]  => CSVSchema(schema, options)
-    }).asInstanceOf[T]
+    val underlyingSchema = typeOf[T] match {
+      case t if t =:= typeOf[AvroSchema] => ("avro", AvroSchema(schema))
+      case t if t =:= typeOf[JSONSchema] => ("json", JSONSchema(schema))
+      case t if t =:= typeOf[CSVSchema]  => ("csv", CSVSchema(schema, options))
+    }
+
+    ParquetSchema(underlyingSchema._2.schema(), underlyingSchema._1)
   }
 }
 
