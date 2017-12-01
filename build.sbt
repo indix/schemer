@@ -77,7 +77,7 @@ lazy val registry = (project in file("schemer-registry"))
     dockerExposedPorts := Seq(9000),
     version in Docker := libVersion,
     daemonUser in Docker := "root",
-    dockerRepository := Some("indix/schemer-registry")
+    dockerRepository := Some("indix")
   )
   .settings(
     inThisBuild(
