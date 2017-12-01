@@ -6,4 +6,5 @@ sbt "project core" +publishSigned
 sbt sonatypeReleaseAll
 
 docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-sbt docker:publish
+sbt docker:publishLocal
+docker push indix/schemer-registry:${TRAVIS_TAG}
