@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <g fill="none" transform="translate(43 43)">
+    <circle cx="213" cy="213" r="213" fill="#324A5E"/>
+    <polygon fill="#ACB3BA" points="117.827 324 110.523 317.218 205.05 214.741 96 153.707 100.869 145 221 212.23"/>
+    <g fill="#FFF" transform="translate(72 122)">
+      <ellipse cx="26.444" cy="26.343" rx="25.689" ry="25.672"/>
+      <ellipse cx="42.143" cy="197.909" rx="25.689" ry="25.672"/>
+    </g>
+    <polygon fill="#ACB3BA" points="293.83 333 208 213.984 267.634 87 276.731 91.194 219.624 212.977 302 327.213"/>
+    <g fill="#FFF" transform="translate(163 163)">
+      <ellipse cx="133.864" cy="164.19" rx="25.634" ry="25.726"/>
+      <ellipse cx="50.262" cy="50.442" rx="49.508" ry="49.686"/>
+    </g>
+    <circle cx="212.5" cy="212.5" r="35.5" fill="#FF7058"/>
+    <circle cx="271.5" cy="88.5" r="25.5" fill="#FFF"/>
+    <circle cx="271.5" cy="88.5" r="18.5" fill="#2C9984"/>
+    <circle cx="297.5" cy="327.5" r="18.5" fill="#84DBFF"/>
+    <circle cx="114.5" cy="321.5" r="18.5" fill="#54C0EB"/>
+    <circle cx="99.5" cy="149.5" r="18.5" fill="#FFD05B"/>
+  </g>
+</svg>
