@@ -12,7 +12,7 @@ Schema registry with support for CSV, TSV, AVRO, JSON and Parquet. Has ability t
 `schemer-core` is the core library that implements most of the logic needed to understand the supported schema types along with the schema inference. To use `schemer-core` directly, just add it to your dependencies:
 
 ```
-libraryDependencies += "com.indix" %% "sparkplug" % "v0.2.0"
+libraryDependencies += "com.indix" %% "schemer" % "v0.2.0"
 ```
 
 ## Schemer Registry
