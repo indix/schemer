@@ -35,4 +35,9 @@ object Dependencies {
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
 
   val loggingStack = Seq(slf4jApi, logbackClassic, scalaLogging)
+
+  val postgres = "org.postgresql" % "postgresql" % "9.4.1208"
+  val quill = "io.getquill" %% "quill-jdbc" % "2.3.1"
+  val quillAsyncPostgres = "io.getquill" %% "quill-async-postgres" % "2.3.1"
+  val flyway = "org.flywaydb" % "flyway-core" % "4.1.1"
 }

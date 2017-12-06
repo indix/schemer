@@ -91,5 +91,14 @@ lazy val registry = (project in file("schemer-registry"))
       )
     ),
     name := "schemer-registry",
-    libraryDependencies ++= sparkStack ++ akkaStack ++ loggingStack ++ Seq(hadoopAws, sangria, sangriaSpray, scalaTest)
+    libraryDependencies ++= sparkStack ++ akkaStack ++ loggingStack ++ Seq(
+      hadoopAws,
+      sangria,
+      sangriaSpray,
+      postgres,
+      quill,
+      quillAsyncPostgres,
+      flyway,
+      scalaTest
+    )
   ) dependsOn core
