@@ -100,5 +100,8 @@ lazy val registry = (project in file("schemer-registry"))
       quillAsyncPostgres,
       flyway,
       scalaTest
+    ),
+    excludeDependencies ++= Seq(
+      ExclusionRule("com.typesafe.scala-logging", "scala-logging-slf4j_2.11")
     )
   ) dependsOn core

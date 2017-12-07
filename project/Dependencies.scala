@@ -30,11 +30,10 @@ object Dependencies {
   lazy val sangria = "org.sangria-graphql" %% "sangria" % "1.2.0"
   lazy val sangriaSpray = "org.sangria-graphql" %% "sangria-spray-json" % "1.0.0"
 
-  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.1.5"
-  val slf4jApi = "org.slf4j" % "slf4j-api" % "1.7.25"
-  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2"
+  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.2.3"
+  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
 
-  val loggingStack = Seq(slf4jApi, logbackClassic, scalaLogging)
+  val loggingStack = Seq(logbackClassic, scalaLogging)
 
   val postgres = "org.postgresql" % "postgresql" % "9.4.1208"
   val quill = "io.getquill" %% "quill-jdbc" % "2.3.1"
