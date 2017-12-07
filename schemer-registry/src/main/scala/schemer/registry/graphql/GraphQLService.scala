@@ -1,14 +1,20 @@
 package schemer.registry.graphql
 
 import org.apache.spark.sql.SparkSession
+import sangria.macros.derive.GraphQLField
 import schemer._
+import schemer.registry.dao.SchemaDao
+import schemer.registry.models.Schema
+import schemer.registry.utils.Clock
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
 case class SchemerInferenceException(message: String) extends Exception(message)
 
-class GraphQLService(implicit val spark: SparkSession) {
+class GraphQLService(schemaDao: SchemaDao)(implicit val spark: SparkSession, val clock: Clock) {
+
   def inferCSVSchema(options: CSVOptions, paths: Seq[String]) =
     handleException(Future {
       CSVSchema(options).infer(paths: _*)
@@ -28,6 +34,10 @@ class GraphQLService(implicit val spark: SparkSession) {
     handleException(Future {
       AvroSchema().infer(paths: _*)
     })
+
+  @GraphQLField
+  def addSchema(name: String, namespace: String, `type`: String, user: String) =
+    schemaDao.create(Schema(name, namespace, `type`, clock.nowUtc, user))
 
   def handleException(f: Future[Any]) = f.recoverWith {
     case ex: Exception =>

@@ -3,15 +3,16 @@ package schemer.registry.server
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.typesafe.config.Config
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
+import schemer.registry.dao.SchemaDao
 import schemer.registry.graphql.GraphQLService
+import schemer.registry.sql.{DatabaseConfig, SqlDatabase}
 import schemer.registry.utils.RealTimeClock
 
 import scala.concurrent.ExecutionContext
 
-trait Modules extends StrictLogging {
+trait Modules {
 
   implicit def system: ActorSystem
 
@@ -19,7 +20,7 @@ trait Modules extends StrictLogging {
 
   implicit def mat: Materializer
 
-  lazy val config = new ServerConfig {
+  lazy val config = new ServerConfig with DatabaseConfig {
     override def rootConfig: Config = loadDefault("registry")
   }
 
@@ -33,5 +34,10 @@ trait Modules extends StrictLogging {
   val hadoopConf = spark.sparkContext.hadoopConfiguration
   hadoopConf.set("fs.s3.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
 
-  lazy val graphQLService = new GraphQLService()
+  val sqlDatabase = SqlDatabase(config)
+  sqlDatabase.updateSchema()
+
+  lazy val schemaDao = new SchemaDao(sqlDatabase)
+
+  lazy val graphQLService = new GraphQLService(schemaDao)
 }

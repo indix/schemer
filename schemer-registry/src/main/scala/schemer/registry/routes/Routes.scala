@@ -1,9 +1,9 @@
 package schemer.registry.routes
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
+import com.typesafe.scalalogging.StrictLogging
 
 trait Routes extends GraphQLRoutes with HealthRoutes with StrictLogging {
   private val exceptionHandler = ExceptionHandler {
