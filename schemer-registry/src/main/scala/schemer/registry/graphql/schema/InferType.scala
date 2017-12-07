@@ -8,7 +8,30 @@ import spray.json.DefaultJsonProtocol
 import sangria.marshalling.sprayJson._
 import schemer._
 
-trait InferType extends DefaultJsonProtocol {
+trait JSONSchemaType {
+  implicit val JSONSchemaType = ObjectType(
+    "JSONSchema",
+    "JSON Schema",
+    fields[Unit, JSONSchema](
+      Field(
+        "schema",
+        StringType,
+        description = Some("CSV Schema as JSON string"),
+        complexity = constantComplexity(10),
+        resolve = ctx => ctx.value.schema
+      ),
+      Field(
+        "sparkSchema",
+        StringType,
+        description = Some("Spark Schema as JSON string"),
+        complexity = constantComplexity(100),
+        resolve = ctx => ctx.value.sparkSchema().prettyJson
+      )
+    )
+  )
+}
+
+trait InferType extends JSONSchemaType with DefaultJsonProtocol {
   lazy implicit val TypeArg             = Argument("type", ParquetSchemaUnderlyingType)
   lazy implicit val PathsArg            = Argument("paths", ListInputType(StringType))
   implicit val CSVOptionsFormat         = jsonFormat5(CSVOptions.apply)
@@ -41,27 +64,6 @@ trait InferType extends DefaultJsonProtocol {
         description = Some("CSV Schema as JSON string"),
         complexity = constantComplexity(100),
         resolve = ctx => ctx.value.schema()
-      ),
-      Field(
-        "sparkSchema",
-        StringType,
-        description = Some("Spark Schema as JSON string"),
-        complexity = constantComplexity(100),
-        resolve = ctx => ctx.value.sparkSchema().prettyJson
-      )
-    )
-  )
-
-  lazy val JSONSchemaType = ObjectType(
-    "JSONSchema",
-    "JSON Schema",
-    fields[Unit, JSONSchema](
-      Field(
-        "schema",
-        StringType,
-        description = Some("CSV Schema as JSON string"),
-        complexity = constantComplexity(10),
-        resolve = ctx => ctx.value.schema
       ),
       Field(
         "sparkSchema",
