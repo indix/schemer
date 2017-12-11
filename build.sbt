@@ -1,5 +1,7 @@
 import Dependencies._
 import com.typesafe.sbt.packager.Keys.{daemonUser, dockerBaseImage, dockerExposedPorts, dockerRepository, packageName}
+import spray.revolver.RevolverPlugin
+import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 val libVersion = sys.env.get("TRAVIS_TAG") orElse sys.env.get("BUILD_LABEL") getOrElse s"1.0.0-${System.currentTimeMillis / 1000}-SNAPSHOT"
 
@@ -79,7 +81,8 @@ lazy val registry = (project in file("schemer-registry"))
     dockerExposedPorts := Seq(9000),
     version in Docker := libVersion,
     daemonUser in Docker := "root",
-    dockerRepository := Some("indix")
+    dockerRepository := Some("indix"),
+    Revolver.enableDebugging(port = 5005, suspend = true)
   )
   .settings(
     inThisBuild(
