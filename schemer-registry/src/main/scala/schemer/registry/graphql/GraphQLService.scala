@@ -7,12 +7,13 @@ import schemer.registry.dao.SchemaDao
 import schemer.registry.models.Schema
 import schemer.registry.utils.Clock
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 case class SchemerInferenceException(message: String) extends Exception(message)
 
-class GraphQLService(schemaDao: SchemaDao)(implicit val spark: SparkSession, val clock: Clock) {
+class GraphQLService(
+    schemaDao: SchemaDao
+)(implicit val spark: SparkSession, implicit val clock: Clock, implicit val ec: ExecutionContext) {
 
   def inferCSVSchema(options: CSVOptions, paths: Seq[String]) =
     handleException(Future {
