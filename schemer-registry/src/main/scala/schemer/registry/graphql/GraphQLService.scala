@@ -7,9 +7,8 @@ import schemer.registry.dao.SchemaDao
 import schemer.registry.models.Schema
 import schemer.registry.utils.Clock
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 
 case class SchemerInferenceException(message: String) extends Exception(message)
 
@@ -37,7 +36,7 @@ class GraphQLService(schemaDao: SchemaDao)(implicit val spark: SparkSession, val
 
   @GraphQLField
   def addSchema(name: String, namespace: String, `type`: String, user: String) =
-    schemaDao.create(Schema(name, namespace, `type`, clock.nowUtc, user))
+    schemaDao.create(Schema.withRandomUUID(name, namespace, `type`, clock.nowUtc, user))
 
   def handleException(f: Future[Any]) = f.recoverWith {
     case ex: Exception =>
