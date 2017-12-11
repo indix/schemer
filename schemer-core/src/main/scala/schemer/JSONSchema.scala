@@ -69,8 +69,9 @@ case class JSONSchemaBase() extends SchemaLikeBase[JSONSchema] {
     ObjectSchema(properties = processStructFields(schema.fields.toList).toMap, $schema = draft)
 
   override def infer(paths: String*)(implicit spark: SparkSession) = {
-    val schema     = spark.read.json(paths: _*).schema
-    val jsonSchema = convertSparkToJsonSchema(schema, Some("http://json-schema.org/draft-06/schema#")).toJSON
+    val sampleJsonData = spark.read.textFile(paths: _*).limit(1000)
+    val schema         = spark.read.json(sampleJsonData.rdd).schema
+    val jsonSchema     = convertSparkToJsonSchema(schema, Some("http://json-schema.org/draft-06/schema#")).toJSON
     JSONSchema(jsonSchema)
   }
 }
