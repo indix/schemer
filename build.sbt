@@ -82,7 +82,7 @@ lazy val registry = (project in file("schemer-registry"))
     version in Docker := libVersion,
     daemonUser in Docker := "root",
     dockerRepository := Some("indix"),
-    Revolver.enableDebugging(port = 5005, suspend = true)
+    Revolver.enableDebugging(port = 5005, suspend = false)
   )
   .settings(
     inThisBuild(
