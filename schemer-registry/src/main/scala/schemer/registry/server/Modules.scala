@@ -1,10 +1,11 @@
 package schemer.registry.server
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.stream.Materializer
 import com.typesafe.config.Config
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
+import schemer.registry.actors.InferActor
 import schemer.registry.dao.SchemaDao
 import schemer.registry.graphql.GraphQLService
 import schemer.registry.sql.{DatabaseConfig, SqlDatabase}
@@ -39,5 +40,6 @@ trait Modules {
 
   lazy val schemaDao = new SchemaDao(sqlDatabase)
 
-  lazy val graphQLService = new GraphQLService(schemaDao)
+  lazy val inferActor     = system.actorOf(Props(new InferActor()))
+  lazy val graphQLService = new GraphQLService(schemaDao, inferActor)
 }

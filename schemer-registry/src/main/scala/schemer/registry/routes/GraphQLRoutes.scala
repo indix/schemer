@@ -26,7 +26,7 @@ trait GraphQLRoutes {
 
   val graphQLExceptionHandler: Executor.ExceptionHandler = {
     case (_, TooComplexQuery)              => HandledException("Too complex query. Please reduce the field selection.")
-    case (_, e: SchemerInferenceException) ⇒ HandledException(s"Error while trying to infer schema - ${e.getMessage}")
+    case (_, e: SchemerInferenceException) => HandledException(e.getMessage)
   }
 
   def executeGraphQLQuery(schema: Schema[GraphQLService, Unit], requestJson: JsValue) = {
