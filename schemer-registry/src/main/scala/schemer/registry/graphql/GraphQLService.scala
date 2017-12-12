@@ -1,7 +1,7 @@
 package schemer.registry.graphql
 
 import akka.actor.ActorRef
-import akka.pattern.ask
+import akka.pattern.{ask, AskTimeoutException}
 import akka.util.Timeout
 import org.apache.spark.sql.SparkSession
 import sangria.macros.derive.GraphQLField
@@ -25,19 +25,25 @@ class GraphQLService(
   def inferCSVSchema(options: CSVOptions, paths: Seq[String]) =
     handleException(inferActor ? CSVSchemaInferenceRequest(options, paths))
 
-  def inferJSONSchema(paths: Seq[String]) = handleException(inferActor ? JSONSchemaInferenceRequest(paths))
+  def inferJSONSchema(paths: Seq[String]) =
+    handleException(inferActor ? JSONSchemaInferenceRequest(paths))
 
   def inferParquetSchema(`type`: String, paths: Seq[String]) =
     handleException(inferActor ? ParquetSchemaInferenceRequest(`type`, paths))
 
-  def inferAvroSchema(paths: Seq[String]) = handleException(inferActor ? AvroSchemaInferenceRequest(paths))
+  def inferAvroSchema(paths: Seq[String]) =
+    handleException(inferActor ? AvroSchemaInferenceRequest(paths))
 
   @GraphQLField
   def addSchema(name: String, namespace: String, `type`: String, user: String) =
     schemaDao.create(Schema.withRandomUUID(name, namespace, `type`, clock.nowUtc, user))
 
   def handleException(f: Future[Any]) = f.recoverWith {
-    case ex: Exception =>
+    case ex: SchemerInferenceException =>
+      Future.failed(ex)
+    case _: AskTimeoutException =>
+      Future.failed(SchemerInferenceException("Timeout while trying to infer schema"))
+    case ex =>
       Future.failed(SchemerInferenceException(ex.getMessage))
   }
 }

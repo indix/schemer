@@ -1,19 +1,22 @@
 package schemer.registry.actors
 
 import akka.actor.{Actor, ActorRef, ActorSystem}
+import akka.pattern.pipe
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.spark.sql.SparkSession
 import schemer._
 
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 
-case class SchemerInferenceException(message: String) extends Exception(message)
+case class SchemerInferenceException(message: String)
+    extends Exception(s"Error while trying to infer schema - $message")
 case class JSONSchemaInferenceRequest(paths: Seq[String])
 case class AvroSchemaInferenceRequest(paths: Seq[String])
 case class ParquetSchemaInferenceRequest(`type`: String, paths: Seq[String])
 case class CSVSchemaInferenceRequest(options: CSVOptions, paths: Seq[String])
 
 class InferActor(implicit val spark: SparkSession, implicit val system: ActorSystem) extends Actor with StrictLogging {
+  import context.dispatcher
 
   def receive = {
     case JSONSchemaInferenceRequest(paths) =>
@@ -35,13 +38,11 @@ class InferActor(implicit val spark: SparkSession, implicit val system: ActorSys
     case _ => logger.info("Unsupported infer request")
   }
 
-  def handleException(sender: ActorRef)(block: => Any) = Try(block) match {
-    case Success(result) =>
-      logger.info("Sending back inference result")
-      sender ! result
-    case Failure(e) =>
-      val message = s"Error while trying to infer schema - ${e.getMessage}"
-      logger.info(message)
-      sender ! akka.actor.Status.Failure(new SchemerInferenceException(message))
-  }
+  def handleException(sender: ActorRef)(block: => Any) =
+    Future {
+      block
+    } recoverWith {
+      case ex =>
+        Future.failed(SchemerInferenceException(ex.getMessage))
+    } pipeTo sender
 }
