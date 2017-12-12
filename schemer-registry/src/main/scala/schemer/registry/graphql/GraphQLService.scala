@@ -6,6 +6,7 @@ import akka.util.Timeout
 import org.apache.spark.sql.SparkSession
 import sangria.macros.derive.GraphQLField
 import schemer._
+import schemer.registry.actors._
 import schemer.registry.dao.SchemaDao
 import schemer.registry.models.Schema
 import schemer.registry.utils.Clock
@@ -13,12 +14,6 @@ import schemer.registry.utils.Clock
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-
-case class SchemerInferenceException(message: String) extends Exception(message)
-case class JSONSchemaInferenceRequest(paths: Seq[String])
-case class AvroSchemaInferenceRequest(paths: Seq[String])
-case class ParquetSchemaInferenceRequest(`type`: String, paths: Seq[String])
-case class CSVSchemaInferenceRequest(options: CSVOptions, paths: Seq[String])
 
 class GraphQLService(
     schemaDao: SchemaDao,
