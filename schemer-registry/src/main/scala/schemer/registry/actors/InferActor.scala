@@ -64,7 +64,7 @@ class InferActor(
         logger.info(s"Completing inference for jobGroup $jobGroup")
         sender ! r
       case Failure(f) =>
-        sender ! Status.Failure(SchemerInferenceException(f.getMessage))
+        sender ! Status.Failure(f)
     }
 
     system.scheduler.scheduleOnce(inferTimeout.duration) {
