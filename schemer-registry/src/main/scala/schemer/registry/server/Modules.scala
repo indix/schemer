@@ -1,6 +1,7 @@
 package schemer.registry.server
 
 import akka.actor.{ActorSystem, Props}
+import akka.routing.{BalancingPool, RoundRobinPool}
 import akka.stream.Materializer
 import akka.util.Timeout
 import com.typesafe.config.Config
@@ -11,8 +12,8 @@ import schemer.registry.dao.SchemaDao
 import schemer.registry.graphql.GraphQLService
 import schemer.registry.sql.{DatabaseConfig, SqlDatabase}
 import schemer.registry.utils.RealTimeClock
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 
 trait Modules {
@@ -44,6 +45,7 @@ trait Modules {
 
   lazy val schemaDao = new SchemaDao(sqlDatabase)
 
-  lazy val inferActor     = system.actorOf(Props(new InferActor()))
+  lazy val inferActor =
+    system.actorOf(Props(new InferActor()).withRouter(BalancingPool(nrOfInstances = 10)), name = "InferActor")
   lazy val graphQLService = new GraphQLService(schemaDao, inferActor)
 }

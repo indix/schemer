@@ -1,6 +1,7 @@
 package schemer.registry.actors
 
-import akka.actor.{Actor, ActorRef, ActorSystem}
+import akka.actor.{Actor, ActorRef, ActorSystem, Status}
+import akka.event.Logging
 import akka.pattern.pipe
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
@@ -8,7 +9,7 @@ import org.apache.spark.sql.SparkSession
 import schemer._
 
 import scala.concurrent.Future
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 
 case class SchemerInferenceException(message: String)
     extends Exception(s"Error while trying to infer schema - $message")
@@ -21,9 +22,9 @@ class InferActor(
     implicit val spark: SparkSession,
     implicit val system: ActorSystem,
     implicit val inferTimeout: Timeout
-) extends Actor
-    with StrictLogging {
+) extends Actor {
   import context.dispatcher
+  val logger = Logging(context.system, this)
 
   def receive = {
     case JSONSchemaInferenceRequest(paths) =>
@@ -47,18 +48,32 @@ class InferActor(
 
   def inferSchema(sender: ActorRef)(block: => Any) = {
     val jobGroup = Random.alphanumeric take 12 mkString ""
+    logger.info(s"Starting inference for jobGroup $jobGroup")
 
-    Future {
-      spark.sparkContext.setJobGroup(jobGroup, jobGroup, false)
+    val inferFuture = Future {
+      spark.sparkContext.setJobGroup(jobGroup, jobGroup, true)
       block
     } recoverWith {
       case ex =>
+        logger.info(s"Inference for jobGroup $jobGroup failed - ${ex.getMessage}")
         Future.failed(SchemerInferenceException(ex.getMessage))
-    } pipeTo sender
+    }
+
+    inferFuture onComplete {
+      case Success(r) =>
+        logger.info(s"Completing inference for jobGroup $jobGroup")
+        sender ! r
+      case Failure(f) =>
+        sender ! Status.Failure(SchemerInferenceException(f.getMessage))
+    }
 
     system.scheduler.scheduleOnce(inferTimeout.duration) {
+      logger.info(s"Cancelling jobGroup $jobGroup")
       spark.sparkContext.cancelJobGroup(jobGroup)
     }
 
   }
+
+  override def preStart(): Unit =
+    logger.info(s"Starting infer actor")
 }
