@@ -1,6 +1,6 @@
 package schemer.registry.graphql
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem, Kill, Props}
 import akka.pattern.{ask, AskTimeoutException}
 import akka.util.Timeout
 import org.apache.spark.sql.SparkSession
@@ -11,39 +11,43 @@ import schemer.registry.dao.SchemaDao
 import schemer.registry.models.Schema
 import schemer.registry.utils.Clock
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 class GraphQLService(
     schemaDao: SchemaDao,
     inferActor: ActorRef
-)(implicit val spark: SparkSession, implicit val clock: Clock, implicit val ec: ExecutionContext) {
-
-  implicit val timeout = Timeout(60 seconds)
+)(
+    implicit val spark: SparkSession,
+    implicit val clock: Clock,
+    implicit val ec: ExecutionContext,
+    implicit val system: ActorSystem,
+    implicit val inferTimeout: Timeout
+) {
 
   def inferCSVSchema(options: CSVOptions, paths: Seq[String]) =
-    handleException(inferActor ? CSVSchemaInferenceRequest(options, paths))
+    inferWithActor(CSVSchemaInferenceRequest(options, paths))
 
   def inferJSONSchema(paths: Seq[String]) =
-    handleException(inferActor ? JSONSchemaInferenceRequest(paths))
+    inferWithActor(JSONSchemaInferenceRequest(paths))
 
   def inferParquetSchema(`type`: String, paths: Seq[String]) =
-    handleException(inferActor ? ParquetSchemaInferenceRequest(`type`, paths))
+    inferWithActor(ParquetSchemaInferenceRequest(`type`, paths))
 
   def inferAvroSchema(paths: Seq[String]) =
-    handleException(inferActor ? AvroSchemaInferenceRequest(paths))
+    inferWithActor(AvroSchemaInferenceRequest(paths))
 
   @GraphQLField
   def addSchema(name: String, namespace: String, `type`: String, user: String) =
     schemaDao.create(Schema.withRandomUUID(name, namespace, `type`, clock.nowUtc, user))
 
-  def handleException(f: Future[Any]) = f.recoverWith {
-    case ex: SchemerInferenceException =>
-      Future.failed(ex)
-    case _: AskTimeoutException =>
-      Future.failed(SchemerInferenceException("Timeout while trying to infer schema"))
-    case ex =>
-      Future.failed(SchemerInferenceException(ex.getMessage))
-  }
+  def inferWithActor(message: Any) =
+    (inferActor ? message).recoverWith {
+      case ex: SchemerInferenceException =>
+        Future.failed(ex)
+      case _: AskTimeoutException =>
+        Future.failed(SchemerInferenceException("Timeout while trying to infer schema"))
+      case ex =>
+        Future.failed(SchemerInferenceException(ex.getMessage))
+    }
 }

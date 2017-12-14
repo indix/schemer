@@ -2,6 +2,7 @@ package schemer.registry.server
 
 import akka.actor.{ActorSystem, Props}
 import akka.stream.Materializer
+import akka.util.Timeout
 import com.typesafe.config.Config
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
@@ -10,6 +11,7 @@ import schemer.registry.dao.SchemaDao
 import schemer.registry.graphql.GraphQLService
 import schemer.registry.sql.{DatabaseConfig, SqlDatabase}
 import schemer.registry.utils.RealTimeClock
+import scala.concurrent.duration._
 
 import scala.concurrent.ExecutionContext
 
@@ -26,6 +28,8 @@ trait Modules {
   }
 
   implicit lazy val clock = RealTimeClock
+
+  implicit lazy val inferTimeout = Timeout(60.seconds)
 
   implicit val spark: SparkSession = SparkSession.builder
     .config(new SparkConf())
