@@ -1,6 +1,6 @@
 package schemer.registry.graphql
 
-import akka.actor.{ActorRef, ActorSystem, Kill, Props}
+import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.{ask, AskTimeoutException}
 import akka.util.Timeout
 import org.apache.spark.sql.SparkSession
@@ -22,7 +22,7 @@ class GraphQLService(
     implicit val clock: Clock,
     implicit val ec: ExecutionContext,
     implicit val system: ActorSystem,
-    implicit val inferTimeout: Timeout
+    implicit val inferActorTimeout: Timeout
 ) {
 
   def inferCSVSchema(options: CSVOptions, paths: Seq[String]) =
