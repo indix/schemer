@@ -1,7 +1,7 @@
 package schemer.registry.server
 
 import akka.actor.{ActorSystem, Props}
-import akka.routing.{BalancingPool, RoundRobinPool}
+import akka.routing.BalancingPool
 import akka.stream.Materializer
 import akka.util.Timeout
 import com.typesafe.config.Config
@@ -13,7 +13,6 @@ import schemer.registry.graphql.GraphQLService
 import schemer.registry.sql.{DatabaseConfig, SqlDatabase}
 import schemer.registry.utils.RealTimeClock
 
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext
 
 trait Modules {
@@ -24,13 +23,13 @@ trait Modules {
 
   implicit def mat: Materializer
 
-  lazy val config = new ServerConfig with DatabaseConfig {
+  lazy val config = new ServerConfig with DatabaseConfig with InferenceConfig {
     override def rootConfig: Config = loadDefault("registry")
   }
 
   implicit lazy val clock = RealTimeClock
 
-  implicit lazy val inferTimeout = Timeout(60.seconds)
+  implicit lazy val inferTimeout = Timeout(config.inferTimeout)
 
   implicit val spark: SparkSession = SparkSession.builder
     .config(new SparkConf())
