@@ -10,9 +10,13 @@ import schemer.registry.actors._
 import schemer.registry.dao.SchemaDao
 import schemer.registry.models.Schema
 import schemer.registry.utils.Clock
+import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
+
+case class SchemerSchemaCreationException(message: String)
+    extends Exception(s"Error while trying to create new schema - $message")
 
 class GraphQLService(
     schemaDao: SchemaDao,
@@ -39,7 +43,12 @@ class GraphQLService(
 
   @GraphQLField
   def addSchema(name: String, namespace: String, `type`: String, user: String) =
-    schemaDao.create(Schema.withRandomUUID(name, namespace, `type`, clock.nowUtc, user))
+    schemaDao.create(Schema.withRandomUUID(name, namespace, `type`, clock.nowUtc, user)).recoverWith {
+      case ex: GenericDatabaseException =>
+        Future.failed(SchemerSchemaCreationException(ex.asInstanceOf[GenericDatabaseException].errorMessage.message))
+      case ex =>
+        Future.failed(SchemerSchemaCreationException(ex.getMessage))
+    }
 
   def inferWithActor(message: Any) =
     (inferActor ? message).recoverWith {

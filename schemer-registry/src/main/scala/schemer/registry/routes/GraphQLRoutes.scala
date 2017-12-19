@@ -10,7 +10,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.server.Directives._
 import sangria.marshalling.sprayJson._
 import schemer.registry.actors.SchemerInferenceException
-import schemer.registry.graphql.{CustomGraphQLResolver, GraphQLService}
+import schemer.registry.graphql.{CustomGraphQLResolver, GraphQLService, SchemerSchemaCreationException}
 import schemer.registry.graphql.schema.SchemaDefinition
 
 import scala.util.{Failure, Success}
@@ -26,8 +26,9 @@ trait GraphQLRoutes {
   )
 
   val graphQLExceptionHandler: Executor.ExceptionHandler = {
-    case (_, TooComplexQuery)              => HandledException("Too complex query. Please reduce the field selection.")
-    case (_, e: SchemerInferenceException) => HandledException(e.getMessage)
+    case (_, TooComplexQuery)                   => HandledException("Too complex query. Please reduce the field selection.")
+    case (_, e: SchemerInferenceException)      => HandledException(e.getMessage)
+    case (_, e: SchemerSchemaCreationException) => HandledException(e.getMessage)
   }
 
   def executeGraphQLQuery(schema: Schema[GraphQLService, Unit], requestJson: JsValue) = {
