@@ -12,5 +12,5 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
 
   val schemas                              = quote(querySchema[Schema]("schemas"))
   def find(id: UUID)                       = run(schemas.filter(c => c.id == lift(id))).map(_.headOption)
-  def create(schema: Schema): Future[Long] = run(schemas.insert(lift(schema)))
+  def create(schema: Schema): Future[UUID] = run(schemas.insert(lift(schema)).returning(_.id))
 }

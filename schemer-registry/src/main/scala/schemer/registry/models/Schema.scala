@@ -7,6 +7,6 @@ import org.joda.time.DateTime
 case class Schema(id: UUID, name: String, namespace: String, `type`: String, createdOn: DateTime, createdBy: String)
 
 object Schema {
-  def withRandomUUID(name: String, namespace: String, `type`: String, createdOn: DateTime, createdBy: String) =
-    new Schema(UUID.randomUUID(), name, namespace, `type`, createdOn, createdBy)
+  def apply(name: String, namespace: String, `type`: String, createdOn: DateTime, createdBy: String) =
+    new Schema(null, name, namespace, `type`, createdOn, createdBy)
 }

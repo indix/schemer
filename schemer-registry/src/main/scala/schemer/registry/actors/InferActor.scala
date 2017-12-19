@@ -2,9 +2,7 @@ package schemer.registry.actors
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Status}
 import akka.event.Logging
-import akka.pattern.pipe
 import akka.util.Timeout
-import com.typesafe.scalalogging.StrictLogging
 import org.apache.spark.sql.SparkSession
 import schemer._
 

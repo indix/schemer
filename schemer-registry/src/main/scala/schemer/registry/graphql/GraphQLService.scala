@@ -43,7 +43,7 @@ class GraphQLService(
 
   @GraphQLField
   def addSchema(name: String, namespace: String, `type`: String, user: String) =
-    schemaDao.create(Schema.withRandomUUID(name, namespace, `type`, clock.nowUtc, user)).recoverWith {
+    schemaDao.create(Schema(name, namespace, `type`, clock.nowUtc, user)).recoverWith {
       case ex: GenericDatabaseException =>
         Future.failed(SchemerSchemaCreationException(ex.asInstanceOf[GenericDatabaseException].errorMessage.message))
       case ex =>
