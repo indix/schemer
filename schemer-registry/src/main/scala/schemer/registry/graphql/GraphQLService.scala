@@ -1,5 +1,7 @@
 package schemer.registry.graphql
 
+import java.util.UUID
+
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.{ask, AskTimeoutException}
 import akka.util.Timeout
@@ -8,15 +10,13 @@ import sangria.macros.derive.GraphQLField
 import schemer._
 import schemer.registry.actors._
 import schemer.registry.dao.SchemaDao
-import schemer.registry.models.Schema
+import schemer.registry.models.{Schema, SchemaType, SchemaVersion}
 import schemer.registry.utils.Clock
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
+import schemer.registry.exceptions.{SchemerInferenceException, SchemerSchemaCreationException}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
-
-case class SchemerSchemaCreationException(message: String)
-    extends Exception(s"Error while trying to create new schema - $message")
 
 class GraphQLService(
     schemaDao: SchemaDao,
@@ -42,12 +42,20 @@ class GraphQLService(
     inferWithActor(AvroSchemaInferenceRequest(paths))
 
   @GraphQLField
-  def addSchema(name: String, namespace: String, `type`: String, user: String) =
-    schemaDao.create(Schema(name, namespace, `type`, clock.nowUtc, user)).recoverWith {
+  def addSchema(name: String, namespace: String, `type`: SchemaType, user: String) =
+    schemaDao.create(Schema(name, namespace, `type`.`type`, clock.nowUtc, user)).recoverWith {
       case ex: GenericDatabaseException =>
         Future.failed(SchemerSchemaCreationException(ex.asInstanceOf[GenericDatabaseException].errorMessage.message))
       case ex =>
         Future.failed(SchemerSchemaCreationException(ex.getMessage))
+    }
+
+  @GraphQLField
+  def addSchemaVersion(schemaId: UUID, version: String, schemaConfig: String, user: String) =
+    schemaDao.find(schemaId).flatMap {
+      case Some(schema) =>
+        schemaDao.createVersion(SchemaVersion(null, schema.id, version, schemaConfig, clock.nowUtc, user))
+      case None => Future.failed(SchemerSchemaCreationException(s"Schema with id $schemaId not found"))
     }
 
   def inferWithActor(message: Any) =

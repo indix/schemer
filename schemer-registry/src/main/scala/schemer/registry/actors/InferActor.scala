@@ -5,12 +5,11 @@ import akka.event.Logging
 import akka.util.Timeout
 import org.apache.spark.sql.SparkSession
 import schemer._
+import schemer.registry.exceptions.SchemerInferenceException
 
 import scala.concurrent.Future
 import scala.util.{Failure, Random, Success}
 
-case class SchemerInferenceException(message: String)
-    extends Exception(s"Error while trying to infer schema - $message")
 case class JSONSchemaInferenceRequest(paths: Seq[String])
 case class AvroSchemaInferenceRequest(paths: Seq[String])
 case class ParquetSchemaInferenceRequest(`type`: String, paths: Seq[String])
