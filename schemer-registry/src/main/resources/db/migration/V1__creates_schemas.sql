@@ -15,7 +15,7 @@ CREATE TABLE "schemas"(
     "name" VARCHAR NOT NULL,
     "namespace" VARCHAR NOT NULL,
     "type" VARCHAR NOT NULL,
-    "created_on" TIMESTAMP NOT NULL,
+    "created_on" TIMESTAMP WITH TIME ZONE NOT NULL,
     "created_by" VARCHAR NOT NULL
 
 );
@@ -29,7 +29,7 @@ CREATE TABLE "schema_versions" (
      "schema_id" UUID NOT NULL,
      "version" VARCHAR NOT NULL,
      "schema" VARCHAR NOT NULL,
-     "created_on" TIMESTAMP NOT NULL,
+     "created_on" TIMESTAMP WITH TIME ZONE NOT NULL,
      "created_by" VARCHAR NOT NULL
 );
 ALTER TABLE "schema_versions" ADD CONSTRAINT "schema_versions_id" PRIMARY KEY("id");
