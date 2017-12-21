@@ -58,6 +58,8 @@ class GraphQLService(
       case None => Future.failed(SchemerSchemaCreationException(s"Schema with id $schemaId not found"))
     }
 
+  def allSchemas = schemaDao.all()
+
   def inferWithActor(message: Any) =
     (inferActor ? message).recoverWith {
       case ex: SchemerInferenceException =>

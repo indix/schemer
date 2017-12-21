@@ -2,6 +2,8 @@ package schemer.registry.dao
 
 import java.util.UUID
 
+import io.getquill.context.async.SqlTypes
+import org.joda.time.DateTime
 import schemer.registry.models.{Schema, SchemaVersion}
 import schemer.registry.sql.SqlDatabase
 
@@ -13,6 +15,7 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   val schemas                              = quote(querySchema[Schema]("schemas"))
   def find(id: UUID)                       = run(schemas.filter(c => c.id == lift(id))).map(_.headOption)
   def create(schema: Schema): Future[UUID] = run(schemas.insert(lift(schema)).returning(_.id))
+  def all()                                = run(schemas)
 
   val schemaVersions = quote(querySchema[SchemaVersion]("schema_versions"))
 

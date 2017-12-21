@@ -22,10 +22,17 @@ object SchemaType {
     override val `type`: String = "parquet"
   }
 
-  val supportedTypes = List(Avro, Csv, Json, Parquet).map(_.`type`)
+  val supportedTypes = List(Avro, Csv, Json, Parquet)
 }
 
-case class Schema(id: UUID, name: String, namespace: String, `type`: String, createdOn: DateTime, createdBy: String)
+case class Schema(
+    id: UUID,
+    name: String,
+    namespace: String,
+    `type`: String,
+    createdOn: DateTime,
+    createdBy: String
+)
 
 object Schema {
   def apply(name: String, namespace: String, `type`: String, createdOn: DateTime, createdBy: String) =

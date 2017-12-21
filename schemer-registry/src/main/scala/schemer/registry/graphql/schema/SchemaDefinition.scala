@@ -1,9 +1,11 @@
 package schemer.registry.graphql.schema
 
-import sangria.schema.{fields, Args, Field, ObjectType, Schema}
+import sangria.macros.derive.deriveObjectType
+import sangria.schema.{fields, Args, Field, ListType, ObjectType, Schema}
 import schemer.registry.graphql.GraphQLService
+import schemer.registry.models.{Schema => SSchema}
 
-object SchemaDefinition extends InferType with MetadataType with MutationType with GraphQLCustomTypes {
+object SchemaDefinition extends InferType with MetadataType with MutationType with SchemaType with GraphQLCustomTypes {
 
   def constantComplexity[Ctx](complexity: Double) =
     Some((_: Ctx, _: Args, child: Double) => child + complexity)
@@ -12,6 +14,12 @@ object SchemaDefinition extends InferType with MetadataType with MutationType wi
     "Query",
     "Root",
     fields[GraphQLService, Unit](
+      Field(
+        "schemas",
+        ListType(SchemaType),
+        description = Some("All Schemas"),
+        resolve = ctx => ctx.ctx.allSchemas
+      ),
       Field(
         "infer",
         InferType,
