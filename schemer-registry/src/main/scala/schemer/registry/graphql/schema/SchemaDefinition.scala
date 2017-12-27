@@ -1,6 +1,5 @@
 package schemer.registry.graphql.schema
 
-import sangria.macros.derive.deriveObjectType
 import sangria.schema.{fields, Args, Field, ListType, ObjectType, Schema}
 import schemer.registry.graphql.GraphQLService
 import schemer.registry.models.{Schema => SSchema}

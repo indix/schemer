@@ -1,7 +1,10 @@
 package schemer.registry.graphql.schema
 
+import sangria.macros.derive.deriveObjectType
 import sangria.schema.{Field, ObjectType, _}
-import schemer.registry.models.{Schema => SSchema, SchemaType => SSchemaType}
+import schemer.registry.graphql.{SchemaVersionLatestDeferred, SchemaVersionsDeferred}
+import schemer.registry.graphql.schema.SchemaDefinition.constantComplexity
+import schemer.registry.models.{SchemaVersion, Schema => SSchema, SchemaType => SSchemaType}
 
 trait SchemaType extends GraphQLCustomTypes {
   implicit lazy val SchemaTypeType = EnumType[SSchemaType](
@@ -14,6 +17,7 @@ trait SchemaType extends GraphQLCustomTypes {
       EnumValue("Parquet", value = SSchemaType.Parquet)
     )
   )
+  val SchemaVersionType: ObjectType[Unit, SchemaVersion] = deriveObjectType()
   val SchemaType: ObjectType[Unit, SSchema] = ObjectType(
     "Schema",
     "Schema",
@@ -47,6 +51,18 @@ trait SchemaType extends GraphQLCustomTypes {
         "createdBy",
         StringType,
         resolve = _.value.createdBy
+      ),
+      Field(
+        "versions",
+        ListType(SchemaVersionType),
+        resolve = ctx => SchemaVersionsDeferred(ctx.value.id),
+        complexity = constantComplexity(200)
+      ),
+      Field(
+        "latestVersion",
+        OptionType(SchemaVersionType),
+        resolve = ctx => SchemaVersionLatestDeferred(ctx.value.id),
+        complexity = constantComplexity(200)
       )
     )
   )

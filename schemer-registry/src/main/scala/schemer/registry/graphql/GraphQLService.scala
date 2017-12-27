@@ -60,6 +60,10 @@ class GraphQLService(
 
   def allSchemas = schemaDao.all()
 
+  def schemaVersions(id: UUID) = schemaDao.findVersions(id)
+
+  def latestSchemaVersion(id: UUID) = schemaDao.findLatestVersion(id)
+
   def inferWithActor(message: Any) =
     (inferActor ? message).recoverWith {
       case ex: SchemerInferenceException =>

@@ -22,14 +22,34 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   def createVersion(schemaVersion: SchemaVersion): Future[UUID] =
     run(schemaVersions.insert(lift(schemaVersion)).returning(_.id))
 
+  def findVersions(id: UUID) = {
+    val query = quote {
+      schemaVersions.filter(_.schemaId == lift(id))
+    }
+
+    run(query)
+  }
+
+  def findLatestVersion(id: UUID) = {
+    val query = quote {
+      schemaVersions
+        .filter(_.schemaId == lift(id))
+        .filter { v1 =>
+          schemaVersions
+            .filter(_.schemaId == lift(id))
+            .filter { v2 =>
+              v1.id != v2.id && v1.createdOn > v2.createdOn
+            }
+            .isEmpty
+        }
+    }
+
+    run(query).map(_.headOption)
+  }
+
   def findVersion(id: UUID, version: String) = {
     val query = quote {
-      schemas
-        .filter(_.id == lift(id))
-        .join(schemaVersions.filter(_.version == lift(version)))
-        .on((schema: Schema, version: SchemaVersion) => {
-          schema.id == version.schemaId
-        })
+      schemaVersions.filter(_.version == lift(version)).filter(_.schemaId == lift(id))
     }
 
     run(query).map(_.headOption)
