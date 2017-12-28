@@ -13,7 +13,11 @@ import schemer.registry.dao.SchemaDao
 import schemer.registry.models.{Schema, SchemaType, SchemaVersion}
 import schemer.registry.utils.Clock
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
-import schemer.registry.exceptions.{SchemerInferenceException, SchemerSchemaCreationException}
+import schemer.registry.exceptions.{
+  SchemerInferenceException,
+  SchemerSchemaCreationException,
+  SchemerSchemaVersionCreationException
+}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -52,11 +56,21 @@ class GraphQLService(
 
   @GraphQLField
   def addSchemaVersion(schemaId: UUID, version: String, schemaConfig: String, user: String) =
-    schemaDao.find(schemaId).flatMap {
-      case Some(schema) =>
-        schemaDao.createVersion(SchemaVersion(null, schema.id, version, schemaConfig, clock.nowUtc, user))
-      case None => Future.failed(SchemerSchemaCreationException(s"Schema with id $schemaId not found"))
-    }
+    schemaDao
+      .find(schemaId)
+      .flatMap {
+        case Some(schema) =>
+          schemaDao.createVersion(SchemaVersion(null, schema.id, version, schemaConfig, clock.nowUtc, user))
+        case None => Future.failed(SchemerSchemaVersionCreationException(s"Schema with id $schemaId not found"))
+      }
+      .recoverWith {
+        case ex: GenericDatabaseException =>
+          Future.failed(
+            SchemerSchemaVersionCreationException(ex.asInstanceOf[GenericDatabaseException].errorMessage.message)
+          )
+        case ex =>
+          Future.failed(SchemerSchemaVersionCreationException(ex.getMessage))
+      }
 
   def allSchemas = schemaDao.all()
 
