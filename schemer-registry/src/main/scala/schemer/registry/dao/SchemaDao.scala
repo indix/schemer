@@ -2,8 +2,6 @@ package schemer.registry.dao
 
 import java.util.UUID
 
-import io.getquill.context.async.SqlTypes
-import org.joda.time.DateTime
 import schemer.registry.models.{Schema, SchemaVersion}
 import schemer.registry.sql.SqlDatabase
 
@@ -38,7 +36,7 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
           schemaVersions
             .filter(_.schemaId == lift(id))
             .filter { v2 =>
-              v1.id != v2.id && v1.createdOn > v2.createdOn
+              v1.id != v2.id && v1.createdOn < v2.createdOn
             }
             .isEmpty
         }
