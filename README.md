@@ -20,3 +20,21 @@ libraryDependencies += "com.indix" %% "schemer" % "v0.2.3"
 `schemer-registry` is a schema registry for storing the metadata about schema and schema versions. It provides a GraphQL API for adding, viewing and inferring schemas.
 
 Schemer Registry is available as a [docker image at DockeHub](https://hub.docker.com/r/indix/schemer-registry/)
+
+### Running Locally
+
+Local docker based PostgreSQL can be run as follows:
+
+```
+docker run -e POSTGRES_USER=schemer -e POSTGRES_PASSWORD=schemer -e PGDATA=/var/lib/postgresql/data/pgdata -e POSTGRES_DB=schemer -v $(pwd)/schemer_db:/var/lib/postgresql/data/pgdata -p 5432:5432 postgres:9.5.0
+```
+
+Remove `schmer_db` folder to clear all data and start from scratch.
+
+The registry service can be run using `sbt`:
+
+```bash
+sbt "project registry" ~reStart
+```
+
+
