@@ -10,7 +10,7 @@ import org.apache.spark.sql.SparkSession
 import sangria.macros.derive.GraphQLField
 import schemer._
 import schemer.registry.actors._
-import schemer.registry.dao.{SchemaDao, SchemaVersionFilter}
+import schemer.registry.dao.{PaginatedFilter, SchemaDao}
 import schemer.registry.models._
 import schemer.registry.utils.Clock
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
@@ -84,7 +84,7 @@ class GraphQLService(
     } else {
       import schemer.registry.utils.DateTimeUtils._
       val filter =
-        SchemaVersionFilter(
+        PaginatedFilter(
           Some(id),
           first.getOrElse(10) + 1,
           after.map(_.toDateTime),

@@ -8,8 +8,8 @@ import schemer.registry.sql.SqlDatabase
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SchemaVersionFilter(
-    schemaId: Option[UUID],
+case class PaginatedFilter(
+    id: Option[UUID],
     first: Int,
     after: Option[DateTime],
     last: Int,
@@ -29,7 +29,7 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   def createVersion(schemaVersion: SchemaVersion): Future[UUID] =
     run(schemaVersions.insert(lift(schemaVersion)).returning(_.id))
 
-  def findFirstVersions(filter: SchemaVersionFilter) = {
+  def findFirstVersions(filter: PaginatedFilter) = {
     val query = quote {
       applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.descNullsLast).take(lift(filter.first))
     }
@@ -37,7 +37,7 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
     run(query)
   }
 
-  def findLastVersions(filter: SchemaVersionFilter) = {
+  def findLastVersions(filter: PaginatedFilter) = {
     val query = quote {
       applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.ascNullsLast).take(lift(filter.last))
     }
@@ -46,11 +46,11 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   }
 
   private def applyCursors =
-    quote { (filter: SchemaVersionFilter) =>
+    quote { (filter: PaginatedFilter) =>
       schemaVersions
         .filter(
           (version: SchemaVersion) =>
-            filter.schemaId.forall(_ == version.schemaId)
+            filter.id.forall(_ == version.schemaId)
               && filter.after > version.createdOn
               && filter.before < version.createdOn
         )
