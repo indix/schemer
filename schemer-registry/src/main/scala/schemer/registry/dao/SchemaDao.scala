@@ -51,8 +51,8 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
         .filter(
           (version: SchemaVersion) =>
             filter.schemaId.forall(_ == version.schemaId)
-              && optionDateTimeGreaterThan(filter.after, version.createdOn)
-              && optionDateTimeLesserThan(filter.before, version.createdOn)
+              && filter.after > version.createdOn
+              && filter.before < version.createdOn
         )
     }
 
