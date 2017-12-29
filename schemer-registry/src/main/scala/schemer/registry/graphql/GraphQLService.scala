@@ -83,20 +83,19 @@ class GraphQLService(
     } else {
       val afterDateTime  = after.map(a => cursorToDateTime(a))
       val beforeDateTime = before.map(a => cursorToDateTime(a))
+      val firstExpected  = first.getOrElse(10) + 1
+      val lastExpected   = last.getOrElse(10) + 1
       val filter =
-        SchemaVersionFilter(Some(id), first.getOrElse(10), afterDateTime, last.getOrElse(10), beforeDateTime)
+        SchemaVersionFilter(Some(id), firstExpected, afterDateTime, lastExpected, beforeDateTime)
 
-      val versions = if (last.nonEmpty) {
-        schemaDao.findLastVersions(filter)
-      } else {
-        schemaDao.findFirstVersions(filter)
-      }
-
-      versions
+      last
+        .fold(schemaDao.findFirstVersions(filter))(_ => schemaDao.findLastVersions(filter))
         .map { versions =>
+          val pageInfo: PageInfo = buildPageInfo(first, last, versions.length)
+          val finalVersions      = Option(pageInfo.hasMore).filter(identity).fold(versions)(_ => versions.dropRight(1))
           SchemaSchemaVersionConnection(
-            PageInfo(true, true),
-            versions.map { version =>
+            pageInfo,
+            finalVersions.map { version =>
               val cursor =
                 Base64.getEncoder.encodeToString(version.createdOn.getMillis.toString.getBytes(StandardCharsets.UTF_8))
               SchemaSchemaVersionEdge(cursor, version)
@@ -104,6 +103,12 @@ class GraphQLService(
           )
         }
     }
+
+  private def buildPageInfo(first: Option[Int], last: Option[Int], count: Int) = {
+    val hasNextPage     = first.exists(count > _)
+    val hasPreviousPage = last.exists(count > _)
+    PageInfo(hasNextPage, hasPreviousPage)
+  }
 
   private def cursorToDateTime(a: String) =
     new DateTime(new String(Base64.getDecoder.decode(a), StandardCharsets.UTF_8).toLong)
