@@ -2,10 +2,13 @@ package schemer.registry.dao
 
 import java.util.UUID
 
+import org.joda.time.DateTime
 import schemer.registry.models.{Schema, SchemaVersion}
 import schemer.registry.sql.SqlDatabase
 
 import scala.concurrent.{ExecutionContext, Future}
+
+case class SchemaVersionFilter(schemaId: Option[UUID], after: Option[DateTime], items: Int)
 
 class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   import db.ctx._
@@ -20,12 +23,18 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   def createVersion(schemaVersion: SchemaVersion): Future[UUID] =
     run(schemaVersions.insert(lift(schemaVersion)).returning(_.id))
 
-  def findVersions(id: UUID) = {
-    val query = quote {
-      schemaVersions.filter(_.schemaId == lift(id))
+  def findVersions(id: UUID, numberOfItems: Int, after: Option[DateTime]) = {
+    val query = quote { (filter: SchemaVersionFilter) =>
+      schemaVersions
+        .filter(
+          (version: SchemaVersion) =>
+            filter.schemaId.forall(_ == version.schemaId) && optionDateTimeGreaterThan(filter.after, version.createdOn)
+        )
+        .sortBy(_.createdOn)(Ord.descNullsLast)
+        .take(filter.items)
     }
 
-    run(query)
+    run(query(lift(SchemaVersionFilter(Some(id), after, numberOfItems))))
   }
 
   def findLatestVersion(id: UUID) = {

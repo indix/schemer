@@ -47,3 +47,6 @@ case class SchemaVersion(
     createdOn: DateTime,
     createdBy: String
 )
+case class PageInfo(hasNextPage: Boolean, hasPreviousPage: Boolean)
+case class SchemaSchemaVersionEdge(cursor: String, node: SchemaVersion)
+case class SchemaSchemaVersionConnection(pageInfo: PageInfo, edges: List[SchemaSchemaVersionEdge])

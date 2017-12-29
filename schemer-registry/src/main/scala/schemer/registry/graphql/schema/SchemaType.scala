@@ -4,10 +4,17 @@ import sangria.macros.derive.deriveObjectType
 import sangria.schema.{Field, ObjectType, _}
 import schemer.registry.graphql.{SchemaVersionLatestDeferred, SchemaVersionsDeferred}
 import schemer.registry.graphql.schema.SchemaDefinition.constantComplexity
-import schemer.registry.models.{SchemaVersion, Schema => SSchema, SchemaType => SSchemaType}
+import schemer.registry.models.{
+  PageInfo,
+  SchemaSchemaVersionConnection,
+  SchemaSchemaVersionEdge,
+  SchemaVersion,
+  Schema => SSchema,
+  SchemaType => SSchemaType
+}
 
 trait SchemaType extends GraphQLCustomTypes {
-  implicit lazy val SchemaTypeType = EnumType[SSchemaType](
+  lazy implicit val SchemaTypeType = EnumType[SSchemaType](
     "SchemaType",
     Some("Supported schema types"),
     List(
@@ -17,7 +24,14 @@ trait SchemaType extends GraphQLCustomTypes {
       EnumValue("Parquet", value = SSchemaType.Parquet)
     )
   )
-  val SchemaVersionType: ObjectType[Unit, SchemaVersion] = deriveObjectType()
+  lazy implicit val FirstArg                                                               = Argument("first", IntType)
+  lazy implicit val AfterArg                                                               = Argument("after", OptionInputType(StringType))
+  lazy implicit val PageInfo: ObjectType[Unit, PageInfo]                                   = deriveObjectType()
+  lazy implicit val SchemaVersionType: ObjectType[Unit, SchemaVersion]                     = deriveObjectType()
+  lazy implicit val SchemaSchemaVersionEdgeType: ObjectType[Unit, SchemaSchemaVersionEdge] = deriveObjectType()
+  lazy implicit val SchemaSchemaVersionConnectionType: ObjectType[Unit, SchemaSchemaVersionConnection] =
+    deriveObjectType()
+
   val SchemaType: ObjectType[Unit, SSchema] = ObjectType(
     "Schema",
     "Schema",
@@ -54,9 +68,10 @@ trait SchemaType extends GraphQLCustomTypes {
       ),
       Field(
         "versions",
-        ListType(SchemaVersionType),
-        resolve = ctx => SchemaVersionsDeferred(ctx.value.id),
-        complexity = constantComplexity(200)
+        ListType(SchemaSchemaVersionConnectionType),
+        resolve = ctx => SchemaVersionsDeferred(ctx.value.id, ctx arg FirstArg, ctx arg AfterArg),
+        complexity = constantComplexity(200),
+        arguments = List(FirstArg, AfterArg)
       ),
       Field(
         "latestVersion",

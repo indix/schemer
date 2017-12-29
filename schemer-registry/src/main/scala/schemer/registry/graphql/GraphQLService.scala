@@ -1,6 +1,7 @@
 package schemer.registry.graphql
 
-import java.util.UUID
+import java.nio.charset.StandardCharsets
+import java.util.{Base64, UUID}
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.{ask, AskTimeoutException}
@@ -10,9 +11,10 @@ import sangria.macros.derive.GraphQLField
 import schemer._
 import schemer.registry.actors._
 import schemer.registry.dao.SchemaDao
-import schemer.registry.models.{Schema, SchemaType, SchemaVersion}
+import schemer.registry.models._
 import schemer.registry.utils.Clock
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
+import org.joda.time.DateTime
 import schemer.registry.exceptions.{
   SchemerInferenceException,
   SchemerSchemaCreationException,
@@ -74,7 +76,25 @@ class GraphQLService(
 
   def allSchemas = schemaDao.all()
 
-  def schemaVersions(id: UUID) = schemaDao.findVersions(id)
+  def schemaVersions(id: UUID, first: Int, after: Option[String]) = {
+    val dateTimeFromCursor =
+      after.map(a => new DateTime(new String(Base64.getDecoder.decode(a), StandardCharsets.UTF_8).toLong))
+
+    val numberOfItems = Option(first).filter(_ <= 10).getOrElse(10)
+
+    schemaDao
+      .findVersions(id, numberOfItems, dateTimeFromCursor)
+      .map { versions =>
+        SchemaSchemaVersionConnection(
+          PageInfo(true, true),
+          versions.map { version =>
+            val cursor =
+              Base64.getEncoder.encodeToString(version.createdOn.getMillis.toString.getBytes(StandardCharsets.UTF_8))
+            SchemaSchemaVersionEdge(cursor, version)
+          }
+        )
+      }
+  }
 
   def latestSchemaVersion(id: UUID) = schemaDao.findLatestVersion(id)
 
