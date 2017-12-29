@@ -15,6 +15,7 @@ import schemer.registry.models._
 import schemer.registry.utils.Clock
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
 import org.joda.time.DateTime
+import schemer.registry.Cursor
 import schemer.registry.exceptions.{
   SchemerException,
   SchemerInferenceException,
@@ -77,12 +78,13 @@ class GraphQLService(
 
   def allSchemas = schemaDao.all()
 
-  def schemaVersions(id: UUID, first: Option[Int], after: Option[String], last: Option[Int], before: Option[String]) =
+  def schemaVersions(id: UUID, first: Option[Int], after: Option[Cursor], last: Option[Int], before: Option[Cursor]) =
     if (first.nonEmpty && last.nonEmpty) {
       Future.failed(new SchemerException("Both first and last cannot be specified"))
     } else {
-      val afterDateTime  = after.map(a => cursorToDateTime(a))
-      val beforeDateTime = before.map(a => cursorToDateTime(a))
+      import schemer.registry.utils.DateTimeUtils._
+      val afterDateTime  = after.map(_.toDateTime)
+      val beforeDateTime = before.map(_.toDateTime)
       val firstExpected  = first.getOrElse(10) + 1
       val lastExpected   = last.getOrElse(10) + 1
       val filter =
@@ -96,9 +98,7 @@ class GraphQLService(
           SchemaSchemaVersionConnection(
             pageInfo,
             finalVersions.map { version =>
-              val cursor =
-                Base64.getEncoder.encodeToString(version.createdOn.getMillis.toString.getBytes(StandardCharsets.UTF_8))
-              SchemaSchemaVersionEdge(cursor, version)
+              SchemaSchemaVersionEdge(version.createdOn.toCursor, version)
             }
           )
         }
@@ -109,9 +109,6 @@ class GraphQLService(
     val hasPreviousPage = last.exists(count > _)
     PageInfo(hasNextPage, hasPreviousPage)
   }
-
-  private def cursorToDateTime(a: String) =
-    new DateTime(new String(Base64.getDecoder.decode(a), StandardCharsets.UTF_8).toLong)
 
   def latestSchemaVersion(id: UUID) = schemaDao.findLatestVersion(id)
 
