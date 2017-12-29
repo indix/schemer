@@ -8,7 +8,13 @@ import schemer.registry.sql.SqlDatabase
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SchemaVersionFilter(schemaId: Option[UUID], after: Option[DateTime], items: Int)
+case class SchemaVersionFilter(
+    schemaId: Option[UUID],
+    first: Int,
+    after: Option[DateTime],
+    last: Int,
+    before: Option[DateTime]
+)
 
 class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   import db.ctx._
@@ -23,19 +29,32 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   def createVersion(schemaVersion: SchemaVersion): Future[UUID] =
     run(schemaVersions.insert(lift(schemaVersion)).returning(_.id))
 
-  def findVersions(id: UUID, numberOfItems: Int, after: Option[DateTime]) = {
-    val query = quote { (filter: SchemaVersionFilter) =>
+  def findFirstVersions(filter: SchemaVersionFilter) = {
+    val query = quote {
+      applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.descNullsLast).take(lift(filter.first))
+    }
+
+    run(query)
+  }
+
+  def findLastVersions(filter: SchemaVersionFilter) = {
+    val query = quote {
+      applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.ascNullsLast).take(lift(filter.last))
+    }
+
+    run(query)
+  }
+
+  private def applyCursors =
+    quote { (filter: SchemaVersionFilter) =>
       schemaVersions
         .filter(
           (version: SchemaVersion) =>
-            filter.schemaId.forall(_ == version.schemaId) && optionDateTimeGreaterThan(filter.after, version.createdOn)
+            filter.schemaId.forall(_ == version.schemaId)
+              && optionDateTimeGreaterThan(filter.after, version.createdOn)
+              && optionDateTimeLesserThan(filter.before, version.createdOn)
         )
-        .sortBy(_.createdOn)(Ord.descNullsLast)
-        .take(filter.items)
     }
-
-    run(query(lift(SchemaVersionFilter(Some(id), after, numberOfItems))))
-  }
 
   def findLatestVersion(id: UUID) = {
     val query = quote {

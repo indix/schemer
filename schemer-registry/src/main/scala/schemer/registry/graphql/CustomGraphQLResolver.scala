@@ -13,8 +13,13 @@ case class InferJSONSchemaDeferred(paths: Seq[String])                     exten
 case class InferParquetSchemaDeferred(`type`: String, paths: Seq[String])  extends Deferred[ParquetSchema]
 case class InferAvroSchemaDeferred(paths: Seq[String])                     extends Deferred[AvroSchema]
 
-case class SchemaVersionsDeferred(id: UUID, first: Int, after: Option[String])
-    extends Deferred[Seq[SchemaSchemaVersionConnection]]
+case class SchemaVersionsDeferred(
+    id: UUID,
+    first: Option[Int],
+    after: Option[String],
+    last: Option[Int],
+    before: Option[String]
+) extends Deferred[Seq[SchemaSchemaVersionConnection]]
 case class SchemaVersionLatestDeferred(id: UUID) extends Deferred[Option[SchemaVersion]]
 
 class CustomGraphQLResolver extends DeferredResolver[GraphQLService] {
@@ -22,21 +27,22 @@ class CustomGraphQLResolver extends DeferredResolver[GraphQLService] {
       implicit ec: ExecutionContext
   ) = {
     val defMap = deferred.collect {
-      case InferCSVSchemaDeferred(options, paths)   => "csvSchemaInference"     -> ctx.inferCSVSchema(options, paths)
-      case InferJSONSchemaDeferred(paths)           => "jsonSchemaInference"    -> ctx.inferJSONSchema(paths)
-      case InferParquetSchemaDeferred(t, paths)     => "parquetSchemaInference" -> ctx.inferParquetSchema(t, paths)
-      case InferAvroSchemaDeferred(paths)           => "avroSchemaInference"    -> ctx.inferAvroSchema(paths)
-      case SchemaVersionsDeferred(id, first, after) => "schemaVersions"         -> ctx.schemaVersions(id, first, after)
-      case SchemaVersionLatestDeferred(id)          => "schemaVersionLatest"    -> ctx.latestSchemaVersion(id)
+      case InferCSVSchemaDeferred(options, paths) => "csvSchemaInference"     -> ctx.inferCSVSchema(options, paths)
+      case InferJSONSchemaDeferred(paths)         => "jsonSchemaInference"    -> ctx.inferJSONSchema(paths)
+      case InferParquetSchemaDeferred(t, paths)   => "parquetSchemaInference" -> ctx.inferParquetSchema(t, paths)
+      case InferAvroSchemaDeferred(paths)         => "avroSchemaInference"    -> ctx.inferAvroSchema(paths)
+      case SchemaVersionsDeferred(id, first, after, last, before) =>
+        "schemaVersions" -> ctx.schemaVersions(id, first, after, last, before)
+      case SchemaVersionLatestDeferred(id) => "schemaVersionLatest" -> ctx.latestSchemaVersion(id)
     }
 
     deferred flatMap {
-      case InferCSVSchemaDeferred(_, _)     => defMap.filter(_._1 == "csvSchemaInference").map(_._2)
-      case InferJSONSchemaDeferred(_)       => defMap.filter(_._1 == "jsonSchemaInference").map(_._2)
-      case InferParquetSchemaDeferred(_, _) => defMap.filter(_._1 == "parquetSchemaInference").map(_._2)
-      case InferAvroSchemaDeferred(_)       => defMap.filter(_._1 == "avroSchemaInference").map(_._2)
-      case SchemaVersionsDeferred(_, _, _)  => defMap.filter(_._1 == "schemaVersions").map(_._2)
-      case SchemaVersionLatestDeferred(_)   => defMap.filter(_._1 == "schemaVersionLatest").map(_._2)
+      case InferCSVSchemaDeferred(_, _)          => defMap.filter(_._1 == "csvSchemaInference").map(_._2)
+      case InferJSONSchemaDeferred(_)            => defMap.filter(_._1 == "jsonSchemaInference").map(_._2)
+      case InferParquetSchemaDeferred(_, _)      => defMap.filter(_._1 == "parquetSchemaInference").map(_._2)
+      case InferAvroSchemaDeferred(_)            => defMap.filter(_._1 == "avroSchemaInference").map(_._2)
+      case SchemaVersionsDeferred(_, _, _, _, _) => defMap.filter(_._1 == "schemaVersions").map(_._2)
+      case SchemaVersionLatestDeferred(_)        => defMap.filter(_._1 == "schemaVersionLatest").map(_._2)
     }
   }
 }

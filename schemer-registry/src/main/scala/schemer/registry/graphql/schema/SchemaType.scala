@@ -24,8 +24,10 @@ trait SchemaType extends GraphQLCustomTypes {
       EnumValue("Parquet", value = SSchemaType.Parquet)
     )
   )
-  lazy implicit val FirstArg                                                               = Argument("first", IntType)
+  lazy implicit val FirstArg                                                               = Argument("first", OptionInputType(IntType))
   lazy implicit val AfterArg                                                               = Argument("after", OptionInputType(StringType))
+  lazy implicit val LastArg                                                                = Argument("last", OptionInputType(IntType))
+  lazy implicit val BeforeArg                                                              = Argument("before", OptionInputType(StringType))
   lazy implicit val PageInfo: ObjectType[Unit, PageInfo]                                   = deriveObjectType()
   lazy implicit val SchemaVersionType: ObjectType[Unit, SchemaVersion]                     = deriveObjectType()
   lazy implicit val SchemaSchemaVersionEdgeType: ObjectType[Unit, SchemaSchemaVersionEdge] = deriveObjectType()
@@ -69,9 +71,10 @@ trait SchemaType extends GraphQLCustomTypes {
       Field(
         "versions",
         ListType(SchemaSchemaVersionConnectionType),
-        resolve = ctx => SchemaVersionsDeferred(ctx.value.id, ctx arg FirstArg, ctx arg AfterArg),
+        resolve = ctx =>
+          SchemaVersionsDeferred(ctx.value.id, ctx arg FirstArg, ctx arg AfterArg, ctx arg LastArg, ctx arg BeforeArg),
         complexity = constantComplexity(200),
-        arguments = List(FirstArg, AfterArg)
+        arguments = List(FirstArg, AfterArg, LastArg, BeforeArg)
       ),
       Field(
         "latestVersion",

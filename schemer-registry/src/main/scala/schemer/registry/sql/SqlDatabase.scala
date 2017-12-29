@@ -14,6 +14,10 @@ trait Quotes { this: PostgresAsyncContext[_] =>
   val optionDateTimeGreaterThan = quote { (i: Option[DateTime], j: DateTime) =>
     infix"(($i::timestamptz is null) or $i > $j)".as[Boolean]
   }
+
+  val optionDateTimeLesserThan = quote { (i: Option[DateTime], j: DateTime) =>
+    infix"(($i::timestamptz is null) or $i < $j)".as[Boolean]
+  }
 }
 
 case class SqlDatabase(config: DatabaseConfig) {

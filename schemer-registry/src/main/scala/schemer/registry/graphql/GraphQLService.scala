@@ -10,12 +10,13 @@ import org.apache.spark.sql.SparkSession
 import sangria.macros.derive.GraphQLField
 import schemer._
 import schemer.registry.actors._
-import schemer.registry.dao.SchemaDao
+import schemer.registry.dao.{SchemaDao, SchemaVersionFilter}
 import schemer.registry.models._
 import schemer.registry.utils.Clock
 import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
 import org.joda.time.DateTime
 import schemer.registry.exceptions.{
+  SchemerException,
   SchemerInferenceException,
   SchemerSchemaCreationException,
   SchemerSchemaVersionCreationException
@@ -76,25 +77,36 @@ class GraphQLService(
 
   def allSchemas = schemaDao.all()
 
-  def schemaVersions(id: UUID, first: Int, after: Option[String]) = {
-    val dateTimeFromCursor =
-      after.map(a => new DateTime(new String(Base64.getDecoder.decode(a), StandardCharsets.UTF_8).toLong))
+  def schemaVersions(id: UUID, first: Option[Int], after: Option[String], last: Option[Int], before: Option[String]) =
+    if (first.nonEmpty && last.nonEmpty) {
+      Future.failed(new SchemerException("Both first and last cannot be specified"))
+    } else {
+      val afterDateTime  = after.map(a => cursorToDateTime(a))
+      val beforeDateTime = before.map(a => cursorToDateTime(a))
+      val filter =
+        SchemaVersionFilter(Some(id), first.getOrElse(10), afterDateTime, last.getOrElse(10), beforeDateTime)
 
-    val numberOfItems = Option(first).filter(_ <= 10).getOrElse(10)
-
-    schemaDao
-      .findVersions(id, numberOfItems, dateTimeFromCursor)
-      .map { versions =>
-        SchemaSchemaVersionConnection(
-          PageInfo(true, true),
-          versions.map { version =>
-            val cursor =
-              Base64.getEncoder.encodeToString(version.createdOn.getMillis.toString.getBytes(StandardCharsets.UTF_8))
-            SchemaSchemaVersionEdge(cursor, version)
-          }
-        )
+      val versions = if (last.nonEmpty) {
+        schemaDao.findLastVersions(filter)
+      } else {
+        schemaDao.findFirstVersions(filter)
       }
-  }
+
+      versions
+        .map { versions =>
+          SchemaSchemaVersionConnection(
+            PageInfo(true, true),
+            versions.map { version =>
+              val cursor =
+                Base64.getEncoder.encodeToString(version.createdOn.getMillis.toString.getBytes(StandardCharsets.UTF_8))
+              SchemaSchemaVersionEdge(cursor, version)
+            }
+          )
+        }
+    }
+
+  private def cursorToDateTime(a: String) =
+    new DateTime(new String(Base64.getDecoder.decode(a), StandardCharsets.UTF_8).toLong)
 
   def latestSchemaVersion(id: UUID) = schemaDao.findLatestVersion(id)
 
