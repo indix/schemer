@@ -83,12 +83,14 @@ class GraphQLService(
       Future.failed(new SchemerException("Both first and last cannot be specified"))
     } else {
       import schemer.registry.utils.DateTimeUtils._
-      val afterDateTime  = after.map(_.toDateTime)
-      val beforeDateTime = before.map(_.toDateTime)
-      val firstExpected  = first.getOrElse(10) + 1
-      val lastExpected   = last.getOrElse(10) + 1
       val filter =
-        SchemaVersionFilter(Some(id), firstExpected, afterDateTime, lastExpected, beforeDateTime)
+        SchemaVersionFilter(
+          Some(id),
+          first.getOrElse(10) + 1,
+          after.map(_.toDateTime),
+          last.getOrElse(10) + 1,
+          before.map(_.toDateTime)
+        )
 
       last
         .fold(schemaDao.findFirstVersions(filter))(_ => schemaDao.findLastVersions(filter))
@@ -104,11 +106,8 @@ class GraphQLService(
         }
     }
 
-  private def buildPageInfo(first: Option[Int], last: Option[Int], count: Int) = {
-    val hasNextPage     = first.exists(count > _)
-    val hasPreviousPage = last.exists(count > _)
-    PageInfo(hasNextPage, hasPreviousPage)
-  }
+  private def buildPageInfo(first: Option[Int], last: Option[Int], count: Int) =
+    PageInfo(first.exists(count > _), last.exists(count > _))
 
   def latestSchemaVersion(id: UUID) = schemaDao.findLatestVersion(id)
 
