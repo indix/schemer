@@ -6,17 +6,14 @@ import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 
 trait Quotes { this: PostgresAsyncContext[_] =>
-  implicit class DateTimeQuotes(left: DateTime) {
-    def >(right: DateTime) = quote(infix"$left > $right".as[Boolean])
-    def <(right: DateTime) = quote(infix"$left < $right".as[Boolean])
+  implicit class DateTimeQuotes(l: DateTime) {
+    def >(r: DateTime) = quote(infix"$l > $r".as[Boolean])
+    def <(r: DateTime) = quote(infix"$l < $r".as[Boolean])
   }
 
-  val optionDateTimeGreaterThan = quote { (i: Option[DateTime], j: DateTime) =>
-    infix"(($i::timestamptz is null) or $i > $j)".as[Boolean]
-  }
-
-  val optionDateTimeLesserThan = quote { (i: Option[DateTime], j: DateTime) =>
-    infix"(($i::timestamptz is null) or $i < $j)".as[Boolean]
+  implicit class OptDateTimeQuotes(l: Option[DateTime]) {
+    def >(r: DateTime) = quote(infix"($l::timestamptz is null) or $l > $r".as[Boolean])
+    def <(r: DateTime) = quote(infix"$l::timestamptz is null or $l < $r".as[Boolean])
   }
 }
 
