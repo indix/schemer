@@ -86,9 +86,9 @@ class GraphQLService(
       val filter =
         PaginatedFilter(
           Some(id),
-          first.getOrElse(10) + 1,
+          first,
           after.map(_.toDateTime),
-          last.getOrElse(10) + 1,
+          last,
           before.map(_.toDateTime)
         )
 

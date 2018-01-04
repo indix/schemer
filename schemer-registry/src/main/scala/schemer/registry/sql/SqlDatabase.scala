@@ -12,8 +12,8 @@ trait Quotes { this: PostgresAsyncContext[_] =>
   }
 
   implicit class OptDateTimeQuotes(l: Option[DateTime]) {
-    def >(r: DateTime) = quote(infix"($l::timestamptz is null) or $l > $r".as[Boolean])
-    def <(r: DateTime) = quote(infix"($l::timestamptz is null) or $l < $r".as[Boolean])
+    def >(r: DateTime) = quote(infix"($l::timestamptz is null or $l > $r)".as[Boolean])
+    def <(r: DateTime) = quote(infix"($l::timestamptz is null or $l < $r)".as[Boolean])
   }
 }
 

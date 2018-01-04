@@ -10,11 +10,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class PaginatedFilter(
     id: Option[UUID],
-    first: Int,
+    first: Option[Int],
     after: Option[DateTime],
-    last: Int,
+    last: Option[Int],
     before: Option[DateTime]
-)
+) {
+  def take = (last orElse first).filter(_ <= 10).getOrElse(10) + 1
+}
 
 class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
   import db.ctx._
@@ -31,7 +33,7 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
 
   def findFirstVersions(filter: PaginatedFilter) = {
     val query = quote {
-      applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.descNullsLast).take(lift(filter.first))
+      applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.descNullsLast).take(lift(filter.take))
     }
 
     run(query)
@@ -39,7 +41,7 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
 
   def findLastVersions(filter: PaginatedFilter) = {
     val query = quote {
-      applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.ascNullsLast).take(lift(filter.last))
+      applyCursors(lift(filter)).sortBy(_.createdOn)(Ord.ascNullsLast).take(lift(filter.take))
     }
 
     run(query)
