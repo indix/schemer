@@ -102,6 +102,9 @@ lazy val registry = (project in file("schemer-registry"))
       quill,
       quillAsyncPostgres,
       flyway,
+      prometheusClient,
+      prometheusClientCommon,
+      prometheusHotspot,
       scalaTest
     ),
     excludeDependencies ++= Seq(

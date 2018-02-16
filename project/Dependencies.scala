@@ -20,6 +20,10 @@ object Dependencies {
     ExclusionRule("javax.mail")
   }
 
+  lazy val prometheusClient = "io.prometheus" % "simpleclient" % "0.2.0"
+  lazy val prometheusClientCommon = "io.prometheus" % "simpleclient_common" % "0.2.0"
+  lazy val prometheusHotspot = "io.prometheus" % "simpleclient_hotspot" % "0.2.0"
+
   lazy val akkaHttpCore = "com.typesafe.akka" %% "akka-http-core" % Versions.akkaHttpVersion
   lazy val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
   lazy val sprayJsonAkka = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
