@@ -8,15 +8,15 @@ import akka.http.scaladsl.server.Directives._
 import io.prometheus.client.Collector.MetricFamilySamples
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
-import io.prometheus.client.hotspot.{DefaultExports, StandardExports}
+import io.prometheus.client.hotspot.DefaultExports
 
 trait HealthRoutes {
 
   DefaultExports.initialize()
-  val collectorRegistry       = CollectorRegistry.defaultRegistry
-  private val mediaTypeParams = Map("version" -> "0.0.4")
-  private val mediaType =
-    MediaType.customWithFixedCharset("text", "plain", HttpCharsets.`UTF-8`, params = mediaTypeParams)
+  private val collectorRegistry = CollectorRegistry.defaultRegistry
+  private val metricsMediaTypeParams = Map("version" -> "0.0.4")
+  private val metricsMediaType =
+    MediaType.customWithFixedCharset("text", "plain", HttpCharsets.`UTF-8`, params = metricsMediaTypeParams)
 
   def toPrometheusTextFormat(e: util.Enumeration[MetricFamilySamples]): String = {
     val writer: Writer = new StringWriter()
@@ -34,7 +34,7 @@ trait HealthRoutes {
   } ~ path("metrics") {
     get {
       complete {
-        HttpEntity(mediaType, toPrometheusTextFormat(collectorRegistry.metricFamilySamples()))
+        HttpEntity(metricsMediaType, toPrometheusTextFormat(collectorRegistry.metricFamilySamples()))
       }
     }
   }
