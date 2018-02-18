@@ -1,27 +1,25 @@
 package schemer.registry.graphql
 
-import java.nio.charset.StandardCharsets
-import java.util.{Base64, UUID}
+import java.util.UUID
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.{ask, AskTimeoutException}
 import akka.util.Timeout
+import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
 import org.apache.spark.sql.SparkSession
 import sangria.macros.derive.GraphQLField
 import schemer._
+import schemer.registry.Cursor
 import schemer.registry.actors._
 import schemer.registry.dao.{PaginatedFilter, SchemaDao}
-import schemer.registry.models._
-import schemer.registry.utils.Clock
-import com.github.mauricio.async.db.postgresql.exceptions.GenericDatabaseException
-import org.joda.time.DateTime
-import schemer.registry.Cursor
 import schemer.registry.exceptions.{
   SchemerException,
   SchemerInferenceException,
   SchemerSchemaCreationException,
   SchemerSchemaVersionCreationException
 }
+import schemer.registry.models._
+import schemer.registry.utils.Clock
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
@@ -64,7 +62,16 @@ class GraphQLService(
       .find(schemaId)
       .flatMap {
         case Some(schema) =>
-          schemaDao.createVersion(SchemaVersion(null, schema.id, version, schemaConfig, clock.nowUtc, user))
+          val errors = Schemer.from(schema.`type`, schemaConfig).validate
+          if (errors.isEmpty) {
+            schemaDao.createVersion(SchemaVersion(null, schema.id, version, schemaConfig, clock.nowUtc, user))
+          } else {
+            Future.failed(
+              SchemerSchemaVersionCreationException(
+                s"Error(s) validating schema config - ${errors.mkString("[", ", ", "]")}"
+              )
+            )
+          }
         case None => Future.failed(SchemerSchemaVersionCreationException(s"Schema with id $schemaId not found"))
       }
       .recoverWith {

@@ -1,5 +1,6 @@
 package schemer
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import schemer.utils.JSONUtil
@@ -29,8 +30,8 @@ case class CSVSchemaBase(csvOptions: CSVOptions) extends SchemaLikeBase[CSVSchem
 }
 
 case class CSVSchema(
-    fields: List[CSVField],
-    options: CSVOptions
+    @JsonProperty(required = true) fields: List[CSVField],
+    options: CSVOptions = CSVOptions()
 ) extends SchemaLike {
 
   override def validate: List[String] =

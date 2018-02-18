@@ -5,6 +5,8 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.scalatest._
 
+import scala.util.Try
+
 class CSVSchemaSpec extends FlatSpec with Matchers {
   implicit val spark: SparkSession = SparkSession.builder
     .config(new SparkConf())
@@ -82,5 +84,19 @@ class CSVSchemaSpec extends FlatSpec with Matchers {
         )
       )
     )
+  }
+
+  it should "handle empty fields" in {
+    val schema = CSVSchema(
+      "{\"fields\":[], \"options\": {}}"
+    )
+
+    schema.sparkSchema() should be(
+      StructType(List())
+    )
+  }
+
+  it should "handle error parsing json" in {
+    Try(CSVSchema("{}")).failed.get.getMessage should startWith("Missing required creator property 'fields'")
   }
 }

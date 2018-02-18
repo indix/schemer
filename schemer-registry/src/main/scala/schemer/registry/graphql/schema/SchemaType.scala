@@ -2,6 +2,7 @@ package schemer.registry.graphql.schema
 
 import sangria.macros.derive.deriveObjectType
 import sangria.schema.{Field, ObjectType, _}
+import schemer.{SchemaType => SSchemaType}
 import schemer.registry.graphql.{SchemaVersionLatestDeferred, SchemaVersionsDeferred}
 import schemer.registry.graphql.schema.SchemaDefinition.constantComplexity
 import schemer.registry.models.{
@@ -9,8 +10,7 @@ import schemer.registry.models.{
   SchemaSchemaVersionConnection,
   SchemaSchemaVersionEdge,
   SchemaVersion,
-  Schema => SSchema,
-  SchemaType => SSchemaType
+  Schema => SSchema
 }
 
 trait SchemaType extends GraphQLCustomTypes {
@@ -21,7 +21,9 @@ trait SchemaType extends GraphQLCustomTypes {
       EnumValue("Avro", value = SSchemaType.Avro),
       EnumValue("Csv", value = SSchemaType.Csv),
       EnumValue("Json", value = SSchemaType.Json),
-      EnumValue("Parquet", value = SSchemaType.Parquet)
+      EnumValue("ParquetAvro", value = SSchemaType.ParquetAvro),
+      EnumValue("ParquetCsv", value = SSchemaType.ParquetCsv),
+      EnumValue("ParquetJson", value = SSchemaType.ParquetJson)
     )
   )
   lazy implicit val FirstArg                                                               = Argument("first", OptionInputType(IntType))
