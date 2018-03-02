@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:9.5.0
+    ports:
+    - 5432:5432
+    environment:
+      - POSTGRES_USER=schemer
+      - POSTGRES_PASSWORD=schemer
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=schemer
+    volumes:
+      - ./schemer_db:/var/lib/postgresql/data/pgdata
+  schemer:
+    image: indix/schemer-registry:latest
+    restart: always
+    ports:
+    - 9000:9000
+    depends_on:
+    - postgres
+    environment:
+    - POSTGRES_URL=postgresql://postgres:5432/schemer?user=schemer&password=schemer
+  
+    
