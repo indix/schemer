@@ -82,4 +82,6 @@ class SchemaDao(val db: SqlDatabase)(implicit val ec: ExecutionContext) {
 
     run(query).map(_.headOption)
   }
+
+  def findVersion(id: UUID) = run(schemaVersions.filter(c => c.id == lift(id))).map(_.headOption)
 }

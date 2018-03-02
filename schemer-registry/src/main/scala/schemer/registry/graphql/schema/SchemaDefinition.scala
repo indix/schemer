@@ -27,6 +27,13 @@ object SchemaDefinition extends InferType with MetadataType with MutationType wi
         resolve = ctx => ctx.ctx.allSchemas
       ),
       Field(
+        "schemaVersion",
+        OptionType(SchemaVersionType),
+        description = Some("Schema Version"),
+        resolve = ctx => ctx.ctx.schemaVersion(ctx arg IdArg),
+        arguments = List(IdArg)
+      ),
+      Field(
         "infer",
         InferType,
         description = Some("Schema Inference"),

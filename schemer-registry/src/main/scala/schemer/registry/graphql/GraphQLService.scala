@@ -87,6 +87,8 @@ class GraphQLService(
 
   def schema(id: UUID) = schemaDao.find(id)
 
+  def schemaVersion(id: UUID) = schemaDao.findVersion(id)
+
   def schemaVersions(id: UUID, first: Option[Int], after: Option[Cursor], last: Option[Int], before: Option[Cursor]) =
     if (first.nonEmpty && last.nonEmpty) {
       Future.failed(new SchemerException("Both first and last cannot be specified"))
