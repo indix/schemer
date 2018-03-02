@@ -26,6 +26,7 @@ trait SchemaType extends GraphQLCustomTypes {
       EnumValue("ParquetJson", value = SSchemaType.ParquetJson)
     )
   )
+  lazy implicit val IdArg                                                                  = Argument("id", UUIDType)
   lazy implicit val FirstArg                                                               = Argument("first", OptionInputType(IntType))
   lazy implicit val AfterArg                                                               = Argument("after", OptionInputType(StringType))
   lazy implicit val LastArg                                                                = Argument("last", OptionInputType(IntType))

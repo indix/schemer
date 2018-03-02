@@ -1,6 +1,6 @@
 package schemer.registry.graphql.schema
 
-import sangria.schema.{fields, Args, Field, ListType, ObjectType, Schema}
+import sangria.schema.{fields, Args, Field, ListType, ObjectType, OptionType, Schema}
 import schemer.registry.graphql.GraphQLService
 import schemer.registry.models.{Schema => SSchema}
 
@@ -13,6 +13,13 @@ object SchemaDefinition extends InferType with MetadataType with MutationType wi
     "Query",
     "Root",
     fields[GraphQLService, Unit](
+      Field(
+        "schema",
+        OptionType(SchemaType),
+        description = Some("Schema"),
+        resolve = ctx => ctx.ctx.schema(ctx arg IdArg),
+        arguments = List(IdArg)
+      ),
       Field(
         "schemas",
         ListType(SchemaType),

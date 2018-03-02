@@ -13,7 +13,7 @@ import io.prometheus.client.hotspot.DefaultExports
 trait HealthRoutes {
 
   DefaultExports.initialize()
-  private val collectorRegistry = CollectorRegistry.defaultRegistry
+  private val collectorRegistry      = CollectorRegistry.defaultRegistry
   private val metricsMediaTypeParams = Map("version" -> "0.0.4")
   private val metricsMediaType =
     MediaType.customWithFixedCharset("text", "plain", HttpCharsets.`UTF-8`, params = metricsMediaTypeParams)
