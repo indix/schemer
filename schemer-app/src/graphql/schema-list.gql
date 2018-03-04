@@ -1,0 +1,9 @@
+query schemaList {
+  schemas {
+    id
+    name
+    createdOn
+    createdBy
+    type
+  }
+}

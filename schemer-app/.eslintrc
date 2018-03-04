@@ -3,5 +3,18 @@
   "extends": [
     "plugin:vue/essential",
     "@vue/airbnb"
-  ]
+  ],
+  "rules": {
+    "semi": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".js",
+          ".vue"
+        ]
+      }
+    }
+  }
 }

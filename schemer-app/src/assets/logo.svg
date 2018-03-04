@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="888" height="512" viewBox="0 0 888 512">
+  <g fill="none" fill-rule="evenodd">
+    <g fill-rule="nonzero" transform="translate(65 77)">
+      <circle cx="179.5" cy="179.5" r="179.5" fill="#324A5E"/>
+      <polygon fill="#ACB3BA" points="99.334 273 93.199 267.279 172.602 180.832 81 129.345 85.09 122 186 178.713"/>
+      <g fill="#FFF" transform="translate(61 103)">
+        <ellipse cx="22.167" cy="22.227" rx="21.533" ry="21.661"/>
+        <ellipse cx="35.326" cy="166.985" rx="21.533" ry="21.661"/>
+      </g>
+      <polygon fill="#ACB3BA" points="247.134 280 175 179.852 225.118 73 232.763 76.529 184.769 179.005 254 275.13"/>
+      <g fill="#FFF" transform="translate(137 137)">
+        <ellipse cx="112.948" cy="138.265" rx="21.628" ry="21.664"/>
+        <ellipse cx="42.408" cy="42.478" rx="41.772" ry="41.841"/>
+      </g>
+      <circle cx="179" cy="179" r="30" fill="#FF7058"/>
+      <circle cx="228.5" cy="74.5" r="21.5" fill="#FFF"/>
+      <circle cx="228.5" cy="74.5" r="15.5" fill="#2C9984"/>
+      <circle cx="250.5" cy="275.5" r="15.5" fill="#84DBFF"/>
+      <circle cx="96.5" cy="270.5" r="15.5" fill="#54C0EB"/>
+      <circle cx="83.5" cy="125.5" r="15.5" fill="#FFD05B"/>
+    </g>
+    <text fill="#324A5E" font-family="ProductSans-Bold, Product Sans" font-size="90" font-weight="bold">
+      <tspan x="468.23" y="282">schemer</tspan>
+    </text>
+  </g>
+</svg>
