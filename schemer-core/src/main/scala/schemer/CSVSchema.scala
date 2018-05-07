@@ -43,7 +43,12 @@ case class CSVSchema(
   }
 
   def toDf(paths: String*)(implicit @transient spark: SparkSession) = {
-    val csvDF         = spark.read.csv(paths: _*)
+    val csvDF = spark.read
+      .option("delimiter", options.separator)
+      .option("quote", options.quoteChar)
+      .option("escape", options.escapeChar)
+      .option("nullValue", null)
+      .csv(paths: _*)
     val orderedSchema = reconcileSchemaFieldOrder(sparkSchema(), csvDF)
 
     spark.read

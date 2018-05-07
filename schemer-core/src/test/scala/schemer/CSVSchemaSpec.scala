@@ -60,6 +60,19 @@ class CSVSchemaSpec extends FlatSpec with Matchers {
     output(0).storeId should be(42)
   }
 
+  it should "infer schema and read from TSV" in {
+    val path = getClass.getClassLoader.getResource("test.tsv").getPath
+
+    val inferredSchema = CSVSchema(CSVOptions(headerBasedParser = true, separator = "\t")).infer(path)
+    import spark.implicits._
+    val output = inferredSchema.toDf(path).as[TestRecord].collect()
+
+    output.length should be(3)
+    output(0).title should be("iphone")
+    output(0).url should be("http://indix.com/iphone")
+    output(0).storeId should be(42)
+  }
+
   it should "infer schema and get schema json" in {
     val path = getClass.getClassLoader.getResource("test.csv").getPath
 
