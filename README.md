@@ -7,6 +7,14 @@
 
 Schema registry with support for CSV, TSV, AVRO, JSON and Parquet. Has ability to infer schema from a given data source.
 
+## Schemer UI [WIP]
+
+<p align="center">
+    <img src="resources/images/001.png" />
+</p>
+
+Schemer UI is the wizard based frontend for Schemer. It provides a wizard based schema creation and versioning workflow apart from browsing and search capabilities. It is a work in progress. [More screens](schemer-ui.md)
+
 ## Schemer Core
 
 `schemer-core` is the core library that implements most of the logic needed to understand the supported schema types along with the schema inference. To use `schemer-core` directly, just add it to your dependencies:
