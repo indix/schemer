@@ -1,7 +1,7 @@
 import sbt.{ExclusionRule, _}
 
 object Versions {
-  val sparkVersion = "2.1.1"
+  val sparkVersion = "2.3.1"
   val akkaHttpVersion = "10.0.10"
 }
 
