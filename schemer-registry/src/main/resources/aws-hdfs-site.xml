@@ -1,0 +1,16 @@
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!--
+    Useful configurations if you're on AWS to use s3a filesystem that supports IAM Roles
+    instead of expecting hard-coded AWS keys.
+ -->
+<configuration>
+    <property>
+        <name>fs.s3.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
+    <property>
+        <name>fs.s3n.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
+</configuration>
