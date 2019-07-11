@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
 <!--
@@ -12,5 +13,14 @@
     <property>
         <name>fs.s3n.impl</name>
         <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
+
+    <property>
+        <name>fs.AbstractFileSystem.s3.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3A</value>
+    </property>
+    <property>
+        <name>fs.AbstractFileSystem.s3n.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3A</value>
     </property>
 </configuration>
