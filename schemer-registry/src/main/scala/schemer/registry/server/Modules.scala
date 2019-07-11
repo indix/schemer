@@ -36,7 +36,6 @@ trait Modules {
     .getOrCreate()
 
   val hadoopConf = spark.sparkContext.hadoopConfiguration
-  hadoopConf.set("fs.s3.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
 
   val sqlDatabase = SqlDatabase(config)
   sqlDatabase.updateSchema()
